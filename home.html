@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>الصفحة الرئيسية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dubai:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Dubai', sans-serif;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #f0f4f8;
+            position: relative;
+        }
+
+        .sub-tabs-wrapper {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .sub-tab {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            height: 45px;
+            min-width: 130px;
+            display: grid;
+            place-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .sub-tab.active {
+            background: #ffffff;
+            color: #11998e;
+            border-color: #11998e;
+            box-shadow: 0 0 15px rgba(17, 153, 142, 0.4);
+        }
+
+        .sub-tab:hover:not(.active) {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        }
+
+        .sub-tab .ar, .sub-tab .en {
+            grid-area: 1 / 1;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .sub-tab .en {
+            opacity: 0;
+            transform: scale(0.8);
+            font-size: 14px;
+        }
+
+        .sub-tab:hover .ar {
+            opacity: 0;
+            transform: scale(1.2);
+        }
+
+        .sub-tab:hover .en {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .sub-tab.active:hover .en {
+            color: #11998e;
+        }
+
+        .image-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .full-screen-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @media (max-width: 600px) {
+            .sub-tabs-wrapper {
+                top: 10px;
+                right: 10px;
+                gap: 5px;
+            }
+            .sub-tab {
+                min-width: 90px;
+                height: 35px;
+                font-size: 12px;
+            }
+            .sub-tab .en {
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sub-tabs-wrapper">
+        <button class="sub-tab active" onclick="switchImage(this, 'to know.png')">
+            <span class="ar">أن تعرف</span>
+            <span class="en">To Know</span>
+        </button>
+        <button class="sub-tab" onclick="switchImage(this, 'learning journey .png')">
+            <span class="ar">رحلة التعلم</span>
+            <span class="en">Learning Journey</span>
+        </button>
+    </div>
+
+    <div class="image-container">
+        <img id="mainImage" src="to know.png" alt="Content Image" class="full-screen-img">
+    </div>
+
+    <script>
+        function switchImage(btn, imageSrc) {
+            document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            const img = document.getElementById('mainImage');
+            img.style.animation = 'none';
+            img.offsetHeight; 
+            img.style.animation = 'fadeIn 0.4s ease-in-out';
+            img.src = imageSrc;
+        }
+    </script>
+
+</body>
+</html>

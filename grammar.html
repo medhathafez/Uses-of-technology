@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>القواعد - النشاط التطبيقي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dubai:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Dubai', sans-serif;
+        }
+
+        body, html {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden; 
+            background-color: #f0f4f8;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- التبويبات الفرعية --- */
+        .sub-tabs-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 2vw;
+            padding: 1.5vh 2vw;
+            background: #ffffff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            z-index: 10;
+            height: 10vh;
+            min-height: 60px;
+            align-items: center;
+        }
+
+        .sub-tab {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            height: 100%;
+            max-height: 45px;
+            flex: 1;
+            max-width: 160px;
+            box-shadow: 0 4px 10px rgba(37, 117, 252, 0.3);
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            font-size: clamp(14px, 2vw, 18px); 
+        }
+
+        .sub-tab:nth-child(2) {
+            background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
+            box-shadow: 0 4px 10px rgba(255, 8, 68, 0.3);
+        }
+
+        .sub-tab:nth-child(3) {
+            background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+            box-shadow: 0 4px 10px rgba(242, 153, 74, 0.3);
+            color: #333;
+        }
+
+        .sub-tab.active {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+            border: 2px solid #333;
+        }
+
+        .sub-tab .ar, .sub-tab .en {
+            grid-area: 1 / 1;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .sub-tab .en { opacity: 0; transform: scale(0.8); font-size: 0.85em; }
+        .sub-tab:hover .ar { opacity: 0; transform: scale(1.2); }
+        .sub-tab:hover .en { opacity: 1; transform: scale(1); }
+        .sub-tab:nth-child(3):hover .en { color: #333; }
+        .sub-tab.active:hover .en { color: white; }
+        .sub-tab:nth-child(3).active:hover .en { color: #333; }
+
+        /* --- منطقة المحتوى --- */
+        .content-area {
+            flex-grow: 1;
+            height: 90vh; 
+            padding: 2vh 4vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative; 
+        }
+
+        .tab-content {
+            display: none;
+            width: 100%;
+            height: 100%;
+            max-width: 1200px;
+            animation: fadeIn 0.5s ease-in-out;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly; 
+        }
+
+        .tab-content.active { display: flex; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- الهدف ولاحظ --- */
+        .goal-container {
+            background: white;
+            padding: 1.5vh 3vw;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-right: 6px solid #4CAF50;
+            width: 100%;
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            min-height: 8vh;
+        }
+        .goal-text { grid-area: 1 / 1; font-size: clamp(16px, 2.5vw, 22px); font-weight: bold; transition: opacity 0.4s ease, transform 0.4s ease; }
+        .goal-text.ar { color: #4CAF50; }
+        .goal-text.en { color: #2E7D32; opacity: 0; transform: translateY(10px); font-size: 0.9em; }
+        .goal-container:hover .goal-text.ar { opacity: 0; transform: translateY(-10px); }
+        .goal-container:hover .goal-text.en { opacity: 1; transform: translateY(0); }
+
+        .notice-section { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 2vh; }
+        .notice-title { background-color: yellow; color: red; font-size: clamp(20px, 3vw, 28px); font-weight: bold; padding: 0.5vh 2vw; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .sentence-card { background: white; width: 100%; padding: 2vh 3vw; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); font-size: clamp(18px, 3vw, 30px); font-weight: bold; color: black; text-align: right; cursor: pointer; transition: all 0.3s ease; position: relative; border: 2px solid transparent; display: flex; align-items: center; gap: 15px; }
+        .sentence-card:hover { transform: scale(1.02); border-color: #2575fc; box-shadow: 0 6px 20px rgba(37, 117, 252, 0.15); }
+        .highlight-red { color: red; }
+        .speaker-icon { font-size: clamp(20px, 3vw, 28px); opacity: 0.5; transition: 0.3s; }
+        .sentence-card:hover .speaker-icon { opacity: 1; color: #2575fc; transform: scale(1.2); }
+
+        /* --- تاب الشرح --- */
+        .definition-box { background: #e3f2fd; border-left: 6px solid #2575fc; padding: 1.5vh 2vw; border-radius: 8px; width: 100%; text-align: left; direction: ltr; box-shadow: 0 4px 10px rgba(0,0,0,0.05); font-size: clamp(16px, 2vw, 22px); line-height: 1.4; color: #333; }
+        .definition-title { font-weight: bold; color: #2575fc; font-size: 1.1em; }
+        .explain-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5vw; width: 100%; padding: 1vh 0; }
+        .rule-card { background: white; border-radius: 12px; padding: 2vh 2vw; box-shadow: 0 5px 15px rgba(0,0,0,0.06); display: flex; flex-direction: column; justify-content: center; border-top: 5px solid #ff0844; transition: transform 0.3s ease; }
+        .rule-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .rule-card:nth-child(2) { border-color: #2575fc; }
+        .rule-card:nth-child(3) { border-color: #f2994a; }
+        .rule-card:nth-child(4) { border-color: #4CAF50; }
+        .rule-title { font-size: clamp(16px, 2vw, 24px); color: #333; margin-bottom: 0.5vh; font-weight: bold; text-align: left; direction: ltr; }
+        .rule-desc { font-size: clamp(14px, 1.6vw, 20px); color: #555; margin-bottom: 1.5vh; line-height: 1.3; text-align: left; direction: ltr; }
+        .rule-example { font-size: clamp(20px, 2.5vw, 28px); font-weight: bold; color: #2c3e50; text-align: center; background: #f8f9fa; padding: 1vh; border-radius: 8px; direction: rtl; }
+        .arrow { color: #ff0844; margin: 0 10px; }
+
+        /* --- تاب النشاط التطبيقي --- */
+        .practice-wrapper { display: flex; width: 100%; height: 100%; gap: 2vw; overflow: hidden; padding-bottom: 10px; }
+        .practice-col { flex: 1; background: white; border-radius: 12px; padding: 2vh 2vw; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow-y: auto; display: flex; flex-direction: column; border-top: 5px solid #6a11cb; }
+        .practice-col:nth-child(2) { border-top-color: #f2994a; }
+        
+        .practice-title { 
+            text-align: center; color: #333; font-size: clamp(18px, 2vw, 24px); margin-bottom: 2vh; font-weight: bold; 
+            display: grid; place-items: center; cursor: pointer; min-height: 4vh;
+        }
+        .practice-title .ar, .practice-title .en { grid-area: 1 / 1; transition: opacity 0.3s ease, transform 0.3s ease; }
+        .practice-title .en { opacity: 0; transform: translateY(10px); color: #2575fc; font-size: 0.9em; }
+        .practice-title:hover .ar { opacity: 0; transform: translateY(-10px); }
+        .practice-title:hover .en { opacity: 1; transform: translateY(0); }
+
+        .vocab-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5vh; font-size: clamp(16px, 1.8vw, 22px); font-weight: bold; padding: 1vh; background: #f8f9fa; border-radius: 8px; }
+        .sentence-row { display: flex; flex-direction: column; margin-bottom: 2vh; font-size: clamp(16px, 1.8vw, 22px); font-weight: bold; background: #f8f9fa; padding: 1.5vh; border-radius: 8px; }
+
+        .input-field { font-size: clamp(16px, 1.8vw, 20px); padding: 0.5vh 1vw; border: 2px solid #ccc; border-radius: 6px; text-align: right; outline: none; transition: border-color 0.3s, background-color 0.3s; }
+        .input-field:focus { border-color: #2575fc; }
+        
+        .input-field.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .input-field.incorrect { border-color: #ff0844; background-color: #ffebee; }
+
+        .vocab-input { width: 60%; }
+        .sentence-input { width: 100%; margin-top: 1vh; }
+
+        .submit-btn { background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%); color: white; border: none; padding: 1.5vh 2vw; border-radius: 8px; font-size: clamp(16px, 1.8vw, 22px); font-weight: bold; cursor: pointer; margin-top: 2vh; transition: 0.2s; width: 100%; }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3); }
+
+        .try-again-btn { background: #ff9800; color: white; border: none; padding: 1vh 2vw; border-radius: 8px; font-size: clamp(14px, 1.8vw, 20px); font-weight: bold; cursor: pointer; margin-top: 1vh; transition: 0.3s; width: 100%; display: none; }
+        .try-again-btn.show { display: block; }
+        .try-again-btn:hover { background: #e68a00; transform: translateY(-2px); }
+
+        .result-box { text-align: center; font-size: clamp(18px, 2vw, 24px); font-weight: bold; margin-top: 1.5vh; min-height: 4vh; }
+
+        /* --- لوحة المفاتيح العائمة --- */
+        #virtual-keyboard {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(209, 213, 219, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.5vh 1vw;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-radius: 15px;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            gap: 1vh;
+            width: 95%;
+            max-width: 700px;
+        }
+
+        #virtual-keyboard.show { display: flex; }
+
+        #kb-drag-handle {
+            width: 100%;
+            text-align: center;
+            background: #9ca3af;
+            color: white;
+            padding: 8px;
+            border-radius: 10px;
+            cursor: grab;
+            font-weight: bold;
+            user-select: none;
+            touch-action: none;
+            font-size: clamp(14px, 1.5vw, 16px);
+        }
+        #kb-drag-handle:active { cursor: grabbing; }
+
+        .kb-row { display: flex; justify-content: center; gap: 0.4vw; }
+
+        .kb-key {
+            background: white; border: none; border-radius: 6px; padding: 1.5vh 0.8vw;
+            font-size: clamp(15px, 2vw, 22px); font-weight: bold; cursor: pointer;
+            box-shadow: 0 2px 0 #9ca3af; user-select: none; flex: 1; text-align: center;
+        }
+
+        .kb-key:active { transform: translateY(2px); box-shadow: 0 0 0 #9ca3af; background: #e5e7eb; }
+
+        .kb-special { background: #6b7280; color: white; box-shadow: 0 2px 0 #4b5563; max-width: 90px; font-size: 16px; }
+        .kb-special:active { background: #4b5563; box-shadow: 0 0 0 #4b5563; }
+        
+        .kb-done { background: #2575fc; color: white; box-shadow: 0 2px 0 #1e3a8a; max-width: 100px; }
+        .kb-done:active { background: #1e3a8a; box-shadow: 0 0 0 #1e3a8a; }
+
+        @media (max-width: 768px) {
+            .practice-wrapper { flex-direction: column; overflow-y: auto; padding-bottom: 220px; }
+            .practice-col { flex: none; height: auto; }
+            .kb-key { padding: 1.2vh 0.5vw; font-size: 15px; }
+            #virtual-keyboard { width: 98%; padding: 1vh; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="sub-tabs-wrapper">
+        <button class="sub-tab active" onclick="showTab('observe', this)"><span class="ar">لاحظ</span><span class="en">Observe</span></button>
+        <button class="sub-tab" onclick="showTab('explain', this)"><span class="ar">الشرح</span><span class="en">Explain</span></button>
+        <button class="sub-tab" onclick="showTab('practice', this)"><span class="ar">نشاط تطبيقي</span><span class="en">Practice</span></button>
+    </div>
+
+    <div class="content-area">
+        
+        <div id="observe" class="tab-content active">
+            <div class="goal-container">
+                <div class="goal-text ar">الهدف : أن يطبق جمع المؤنث السّالم في جمل تامة.</div>
+                <div class="goal-text en">Goal: To apply the feminine plural in complete sentences.</div>
+            </div>
+            <div class="notice-section">
+                <div class="notice-title">لاحظ الفرق</div>
+                <div class="sentence-card" onmouseenter="speakText('اَلْمُعَلِّمَةُ مُجْتَهِدَةٌ، وَهِيَ تُمَارِسُ كُرَةَ الْقَدَمِ.')" ontouchstart="speakText('اَلْمُعَلِّمَةُ مُجْتَهِدَةٌ، وَهِيَ تُمَارِسُ كُرَةَ الْقَدَمِ.')">
+                    <span class="speaker-icon">🔊</span>
+                    <span>- اَلْمُعَلِّمَةُ مُجْتَهِدَةٌ، وَهِيَ تُمَارِسُ كُرَةَ الْقَدَمِ.</span>
+                </div>
+                <div class="sentence-card" onmouseenter="speakText('اَلْمُعَلِّمَاتُ مُجْتَهِدَاتٌ، وَهُنَّ يُمَارِسْنَ كُرَةَ الْقَدَمِ.')" ontouchstart="speakText('اَلْمُعَلِّمَاتُ مُجْتَهِدَاتٌ، وَهُنَّ يُمَارِسْنَ كُرَةَ الْقَدَمِ.')">
+                    <span class="speaker-icon">🔊</span>
+                    <span>- اَلْمُعَلِّمَ<span class="highlight-red">اتُ</span> مُجْتَهِدَ<span class="highlight-red">اتٌ</span>، وَ<span class="highlight-red">هُنَّ</span> <span class="highlight-red">يُـ</span>مَارِسْ<span class="highlight-red">ـنَ</span> كُرَةَ الْقَدَمِ.</span>
+                </div>
+            </div>
+        </div>
+        
+        <div id="explain" class="tab-content">
+            <div class="definition-box">
+                <span class="definition-title">Sound Feminine Plural (جمع المؤنث السالم):</span> 
+                It is a plural form used for females (three or more), created by adding (ات) to the end of a singular word.
+            </div>
+            <div class="explain-grid">
+                <div class="rule-card"><div class="rule-title">1. Nouns & Adjectives (الاسم والصفة)</div><div class="rule-desc">Remove the ending (ة) and add (ات) at the end.</div><div class="rule-example">مُعَلِّمَة <span class="arrow">←</span> مُعَلِّمَ<span class="highlight-red">ات</span></div></div>
+                <div class="rule-card"><div class="rule-title">2. Pronouns (الضمائر)</div><div class="rule-desc">Change the singular pronoun (She) to plural feminine (They).</div><div class="rule-example">هِيَ <span class="arrow">←</span> <span class="highlight-red">هُنَّ</span></div></div>
+                <div class="rule-card"><div class="rule-title">3. Present Verbs (الفعل المضارع)</div><div class="rule-desc">Start with (يـ) instead of (تـ) and add Noon (ن) at the end.</div><div class="rule-example">تُمَارِسُ <span class="arrow">←</span> <span class="highlight-red">يُـ</span>مَارِسْ<span class="highlight-red">ـنَ</span></div></div>
+                <div class="rule-card"><div class="rule-title">4. Past Verbs (الفعل الماضي)</div><div class="rule-desc">Remove the silent (ت) and add Noon (ن) at the end.</div><div class="rule-example">لَعِبَتْ <span class="arrow">←</span> لَعِبْ<span class="highlight-red">ـنَ</span></div></div>
+            </div>
+        </div>
+        
+        <div id="practice" class="tab-content">
+            <div class="practice-wrapper">
+                <div class="practice-col" id="col-vocab">
+                    <div class="practice-title">
+                        <span class="ar">1. حوّل المفردات الآتية إلى جمع مؤنث</span>
+                        <span class="en">1. Convert the following words to feminine plural</span>
+                    </div>
+                    <div id="vocab-list"></div>
+                    <button class="submit-btn" onclick="checkVocab()">Submit your answer</button>
+                    <div id="vocab-result" class="result-box"></div>
+                    <button id="vocab-retry" class="try-again-btn" onclick="retryVocab()">Try Again</button>
+                </div>
+
+                <div class="practice-col" id="col-sentences">
+                    <div class="practice-title">
+                        <span class="ar">2. حوّل الجمل الآتية إلى جمع مؤنث</span>
+                        <span class="en">2. Convert the following sentences to feminine plural</span>
+                    </div>
+                    <div id="sentences-list"></div>
+                    <button class="submit-btn" onclick="checkSentences()">Submit your answer</button>
+                    <div id="sentences-result" class="result-box"></div>
+                    <button id="sentences-retry" class="try-again-btn" onclick="retrySentences()">Try Again</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="virtual-keyboard">
+            <div id="kb-drag-handle">☰ Drag to move ☰</div>
+            <div class="kb-row">
+                <button class="kb-key" onclick="typeChar('د')">د</button>
+                <button class="kb-key" onclick="typeChar('ج')">ج</button>
+                <button class="kb-key" onclick="typeChar('ح')">ح</button>
+                <button class="kb-key" onclick="typeChar('خ')">خ</button>
+                <button class="kb-key" onclick="typeChar('ه')">ه</button>
+                <button class="kb-key" onclick="typeChar('ع')">ع</button>
+                <button class="kb-key" onclick="typeChar('غ')">غ</button>
+                <button class="kb-key" onclick="typeChar('ف')">ف</button>
+                <button class="kb-key" onclick="typeChar('ق')">ق</button>
+                <button class="kb-key" onclick="typeChar('ث')">ث</button>
+                <button class="kb-key" onclick="typeChar('ص')">ص</button>
+                <button class="kb-key" onclick="typeChar('ض')">ض</button>
+                <button class="kb-key" onclick="typeChar('ذ')">ذ</button>
+            </div>
+            <div class="kb-row">
+                <button class="kb-key" onclick="typeChar('ط')">ط</button>
+                <button class="kb-key" onclick="typeChar('ك')">ك</button>
+                <button class="kb-key" onclick="typeChar('م')">م</button>
+                <button class="kb-key" onclick="typeChar('ن')">ن</button>
+                <button class="kb-key" onclick="typeChar('ت')">ت</button>
+                <button class="kb-key" onclick="typeChar('ا')">ا</button>
+                <button class="kb-key" onclick="typeChar('ل')">ل</button>
+                <button class="kb-key" onclick="typeChar('ب')">ب</button>
+                <button class="kb-key" onclick="typeChar('ي')">ي</button>
+                <button class="kb-key" onclick="typeChar('س')">س</button>
+                <button class="kb-key" onclick="typeChar('ش')">ش</button>
+            </div>
+            <div class="kb-row">
+                <button class="kb-key kb-special" onclick="typeBackspace()">delete</button>
+                <button class="kb-key" onclick="typeChar('ظ')">ظ</button>
+                <button class="kb-key" onclick="typeChar('ز')">ز</button>
+                <button class="kb-key" onclick="typeChar('و')">و</button>
+                <button class="kb-key" onclick="typeChar('ة')">ة</button>
+                <button class="kb-key" onclick="typeChar('ى')">ى</button>
+                <button class="kb-key" onclick="typeChar('لا')">لا</button>
+                <button class="kb-key" onclick="typeChar('ر')">ر</button>
+                <button class="kb-key" onclick="typeChar('ؤ')">ؤ</button>
+                <button class="kb-key" onclick="typeChar('ء')">ء</button>
+                <button class="kb-key" onclick="typeChar('ئ')">ئ</button>
+            </div>
+            <div class="kb-row">
+                <button class="kb-key kb-done" onclick="hideKeyboard()">Done ✓</button>
+                <button class="kb-key" style="flex: 8;" onclick="typeChar(' ')"></button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function showTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+            hideKeyboard(); 
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'ar-SA'; 
+                utterance.rate = 0.8; 
+                utterance.pitch = 1;
+                const voices = window.speechSynthesis.getVoices();
+                const arabicVoice = voices.find(voice => voice.lang.includes('ar'));
+                if (arabicVoice) utterance.voice = arabicVoice;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+        }
+
+        const vocabData = [
+            { word: "مُهَنْدِسَة", answer: "مهندسات" },
+            { word: "حافِلَة", answer: "حافلات" },
+            { word: "سيَّارَة", answer: "سيارات" },
+            { word: "طالِبَة", answer: "طالبات" },
+            { word: "مُحْتَرِفَة", answer: "محترفات" },
+            { word: "مَهَارَة", answer: "مهارات" },
+            { word: "نَشْرَة", answer: "نشرات" },
+            { word: "لاعِبَة", answer: "لاعبات" },
+            { word: "جَميلَة", answer: "جميلات" },
+            { word: "مُسابَقَة", answer: "مسابقات" }
+        ];
+
+        const sentencesData = [
+            { q: "هي شَغوفة بالرياضة لذلك هي تلعب كرة القدم.", a: "هن شغوفات بالرياضة لذلك هن يلعبن كرة القدم." },
+            { q: "هي متميزة و تعمل بجد في المدرسة.", a: "هن متميزات ويعملن بجد في المدرسة.", a2: "هن متميزات و يعملن بجد في المدرسة." },
+            { q: "هي تشاهد الفيلم في السينما.", a: "هن يشاهدن الفيلم في السينما." },
+            { q: "هي تشارك في نادي السباحة.", a: "هن يشاركن في نادي السباحة." }
+        ];
+
+        function renderPractice() {
+            const vocabList = document.getElementById('vocab-list');
+            vocabData.forEach((item, index) => {
+                vocabList.innerHTML += `
+                    <div class="vocab-row">
+                        <span>${item.word}</span>
+                        <input type="text" class="input-field vocab-input" id="v-ans-${index}" placeholder="اكتب هنا..." inputmode="none" onfocus="setActiveInput(this)">
+                    </div>
+                `;
+            });
+
+            const sentencesList = document.getElementById('sentences-list');
+            sentencesData.forEach((item, index) => {
+                sentencesList.innerHTML += `
+                    <div class="sentence-row">
+                        <span>- ${item.q}</span>
+                        <input type="text" class="input-field sentence-input" id="s-ans-${index}" placeholder="أعد كتابة الجملة..." inputmode="none" onfocus="setActiveInput(this)">
+                    </div>
+                `;
+            });
+        }
+        renderPractice();
+
+        function cleanText(text) {
+            if (!text) return "";
+            return text
+                .replace(/[\u064B-\u0652\u0654\u0655]/g, '') 
+                .replace(/[.,،؛؟?!"'-]/g, '') 
+                .replace(/[أإآ]/g, 'ا') 
+                .replace(/\s+/g, ' ') 
+                .trim();
+        }
+
+        function checkVocab() {
+            let score = 0;
+            vocabData.forEach((item, index) => {
+                const inputElement = document.getElementById(`v-ans-${index}`);
+                const userAnswer = cleanText(inputElement.value);
+                const correctAnswer = cleanText(item.answer);
+                
+                inputElement.classList.remove('correct', 'incorrect');
+
+                if (userAnswer === correctAnswer) {
+                    inputElement.classList.add('correct');
+                    score++;
+                } else {
+                    inputElement.classList.add('incorrect');
+                }
+            });
+            
+            const resultBox = document.getElementById('vocab-result');
+            const retryBtn = document.getElementById('vocab-retry');
+            
+            if (score === vocabData.length) {
+                resultBox.innerHTML = `أحسنت! الدرجة: <span style="color: #4CAF50">${score} / ${vocabData.length}</span>`;
+                retryBtn.classList.remove('show');
+            } else {
+                resultBox.innerHTML = `الدرجة: <span style="color: #ff0844">${score} / ${vocabData.length}</span>`;
+                retryBtn.classList.add('show');
+            }
+            hideKeyboard();
+        }
+
+        function retryVocab() {
+            vocabData.forEach((item, index) => {
+                const inputElement = document.getElementById(`v-ans-${index}`);
+                if (inputElement.classList.contains('incorrect')) {
+                    inputElement.value = '';
+                    inputElement.classList.remove('incorrect');
+                }
+            });
+            document.getElementById('vocab-result').innerHTML = '';
+            document.getElementById('vocab-retry').classList.remove('show');
+        }
+
+        function checkSentences() {
+            let score = 0;
+            sentencesData.forEach((item, index) => {
+                const inputElement = document.getElementById(`s-ans-${index}`);
+                const userAnswer = cleanText(inputElement.value);
+                const correct1 = cleanText(item.a);
+                const correct2 = item.a2 ? cleanText(item.a2) : correct1;
+
+                inputElement.classList.remove('correct', 'incorrect');
+
+                if (userAnswer === correct1 || userAnswer === correct2) {
+                    inputElement.classList.add('correct');
+                    score++;
+                } else {
+                    inputElement.classList.add('incorrect');
+                }
+            });
+
+            const resultBox = document.getElementById('sentences-result');
+            const retryBtn = document.getElementById('sentences-retry');
+
+            if (score === sentencesData.length) {
+                resultBox.innerHTML = `أحسنت! الدرجة: <span style="color: #4CAF50">${score} / ${sentencesData.length}</span>`;
+                retryBtn.classList.remove('show');
+            } else {
+                resultBox.innerHTML = `الدرجة: <span style="color: #ff0844">${score} / ${sentencesData.length}</span>`;
+                retryBtn.classList.add('show');
+            }
+            hideKeyboard();
+        }
+
+        function retrySentences() {
+            sentencesData.forEach((item, index) => {
+                const inputElement = document.getElementById(`s-ans-${index}`);
+                if (inputElement.classList.contains('incorrect')) {
+                    inputElement.value = '';
+                    inputElement.classList.remove('incorrect');
+                }
+            });
+            document.getElementById('sentences-result').innerHTML = '';
+            document.getElementById('sentences-retry').classList.remove('show');
+        }
+
+        let currentInput = null;
+        const kb = document.getElementById('virtual-keyboard');
+        const handle = document.getElementById('kb-drag-handle');
+
+        function setActiveInput(inputElement) {
+            currentInput = inputElement;
+            
+            if (!kb.classList.contains('show')) {
+                kb.style.left = '50%';
+                kb.style.top = 'auto';
+                kb.style.bottom = '20px';
+                kb.style.transform = 'translateX(-50%)';
+                kb.classList.add('show');
+            }
+            
+            setTimeout(() => {
+                const rect = inputElement.getBoundingClientRect();
+                const kbRect = kb.getBoundingClientRect();
+                if (rect.bottom > kbRect.top) {
+                    inputElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 300);
+        }
+
+        function hideKeyboard() {
+            kb.classList.remove('show');
+            currentInput = null;
+        }
+
+        function typeChar(char) {
+            if (currentInput) {
+                const start = currentInput.selectionStart;
+                const end = currentInput.selectionEnd;
+                const val = currentInput.value;
+                currentInput.value = val.substring(0, start) + char + val.substring(end);
+                currentInput.selectionStart = currentInput.selectionEnd = start + char.length;
+                currentInput.focus(); 
+            }
+        }
+
+        function typeBackspace() {
+            if (currentInput) {
+                const start = currentInput.selectionStart;
+                if (start > 0) {
+                    const val = currentInput.value;
+                    currentInput.value = val.substring(0, start - 1) + val.substring(start);
+                    currentInput.selectionStart = currentInput.selectionEnd = start - 1;
+                }
+                currentInput.focus();
+            }
+        }
+
+        let isDragging = false;
+        let startX, startY, initialX, initialY;
+
+        handle.addEventListener('mousedown', dragStart);
+        handle.addEventListener('touchstart', dragStart, {passive: false});
+
+        function dragStart(e) {
+            isDragging = true;
+            const event = e.type === 'touchstart' ? e.touches[0] : e;
+            startX = event.clientX;
+            startY = event.clientY;
+            
+            const rect = kb.getBoundingClientRect();
+            initialX = rect.left;
+            initialY = rect.top;
+            
+            kb.style.left = initialX + 'px';
+            kb.style.top = initialY + 'px';
+            kb.style.transform = 'none';
+            kb.style.bottom = 'auto';
+
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag, {passive: false});
+            document.addEventListener('mouseup', dragEnd);
+            document.addEventListener('touchend', dragEnd);
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            e.preventDefault(); 
+            const event = e.type === 'touchmove' ? e.touches[0] : e;
+            const dx = event.clientX - startX;
+            const dy = event.clientY - startY;
+            kb.style.left = (initialX + dx) + 'px';
+            kb.style.top = (initialY + dy) + 'px';
+        }
+
+        function dragEnd() {
+            isDragging = false;
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('touchmove', drag);
+            document.removeEventListener('mouseup', dragEnd);
+            document.removeEventListener('touchend', dragEnd);
+        }
+
+    </script>
+</body>
+</html>

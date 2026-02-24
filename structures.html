@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تراكيب جديدة - تفاعلي وصوتي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: #f3f4f6; 
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 1.5vh 1vw; 
+            font-family: 'Noto Naskh Arabic', serif; 
+            overflow: hidden; 
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 1400px;
+            background: white;
+            border-radius: 12px; 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            height: 97vh; 
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- شريط الرأس المدمج --- */
+        .top-header {
+            display: flex;
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 10px 20px; 
+            direction: rtl; 
+            border-bottom: 2px solid #e5e7eb;
+            background-color: #ffffff;
+            flex-shrink: 0; 
+        }
+
+        .right-group {
+            display: flex;
+            align-items: center;
+            gap: 15px; 
+            flex-wrap: wrap;
+        }
+
+        .objective-container {
+            display: flex;
+            align-items: center;
+            gap: 5px; 
+        }
+
+        .header-icon {
+            height: 38px; 
+            width: auto;
+            object-fit: contain;
+            background-color: transparent;
+        }
+
+        .objective-box {
+            background-color: #dcfce7; 
+            color: #000000; 
+            font-size: 18px; 
+            font-weight: 900; 
+            padding: 4px 15px;
+            border-radius: 8px;
+            border: 1px solid #bbf7d0;
+            white-space: nowrap; 
+        }
+
+        /* --- شريط التبويبات --- */
+        .tabs-nav {
+            display: flex;
+            gap: 6px; 
+            direction: rtl;
+        }
+
+        .tab-btn {
+            background-color: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px; 
+            padding: 0 12px; 
+            cursor: pointer;
+            height: 36px; 
+            min-width: 110px; 
+            text-align: center;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tab-btn.active {
+            border-color: #10b981; 
+            background-color: #ecfdf5;
+            box-shadow: inset 0 0 0 1px rgba(16, 185, 129, 0.2);
+        }
+
+        .tab-text-ar {
+            color: #000000;
+            font-size: 14px; 
+            font-weight: 900;
+            font-family: 'Noto Naskh Arabic', serif;
+        }
+        
+        .tab-text-en {
+            display: none; 
+            color: #059669; 
+            font-size: 12px; 
+            font-weight: bold;
+            font-family: sans-serif; 
+            direction: ltr;
+        }
+
+        .tab-btn:hover .tab-text-ar { display: none; }
+        .tab-btn:hover .tab-text-en { display: block; }
+
+        .left-icons-container {
+            display: flex;
+            align-items: center;
+            gap: 12px; 
+            flex-shrink: 0;
+        }
+
+        /* --- مساحة محتوى النشاط --- */
+        .tabs-content {
+            padding: 40px 20px 20px 100px; 
+            flex-grow: 1; 
+            direction: rtl;
+            background-color: #fefce8; 
+            overflow-y: auto; 
+            position: relative; 
+        }
+
+        .bloom-image {
+            position: fixed; 
+            left: 2vw; 
+            top: 50%; 
+            transform: translateY(-50%);
+            width: 80px; 
+            height: auto;
+            max-height: 70vh; 
+            object-fit: contain;
+            mix-blend-mode: multiply; 
+            pointer-events: none; 
+            z-index: 10;
+        }
+
+        .tab-pane {
+            display: none; 
+            animation: fadeIn 0.3s ease;
+            min-height: 100%; 
+        }
+
+        .tab-pane.active {
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+        }
+
+        /* --- تنسيقات التراكيب --- */
+        
+        .interactive-sentence {
+            font-size: 2.8vw; 
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 40px;
+            display: flex;
+            flex-wrap: nowrap; 
+            justify-content: center;
+            align-items: center;
+            gap: 0.8vw; 
+            white-space: nowrap; 
+            width: 100%;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 12px;
+            transition: background-color 0.3s ease;
+        }
+
+        .interactive-sentence:hover {
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+
+        .speaker-icon {
+            font-size: 3vw;
+            margin-left: 15px;
+            user-select: none;
+            transition: transform 0.2s;
+        }
+        .interactive-sentence:hover .speaker-icon {
+            transform: scale(1.15);
+        }
+
+        /* الألوان */
+        .normal-word { color: #000000; }
+        .green-word { color: #16a34a; }
+        .blue-word { color: #2563eb; } 
+        .red-word { color: #dc2626; } 
+
+        .word-hover {
+            position: relative;
+            transition: transform 0.2s;
+            padding: 0 4px;
+        }
+
+        .word-hover:hover {
+            transform: scale(1.05); 
+        }
+
+        .word-hover::after {
+            content: attr(data-en);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-10px);
+            background-color: #1f2937; 
+            color: #ffffff;
+            font-size: 16px;
+            font-family: sans-serif;
+            padding: 6px 12px;
+            border-radius: 6px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            pointer-events: none; 
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .word-hover::before {
+            content: '';
+            position: absolute;
+            bottom: 100%; 
+            left: 50%;
+            transform: translateX(-50%) translateY(2px);
+            border-width: 6px;
+            border-style: solid;
+            border-color: #1f2937 transparent transparent transparent;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .word-hover:hover::after,
+        .word-hover:hover::before {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .target-word {
+            background-color: #fde047; 
+            padding: 0 8px;
+            border-radius: 8px;
+            color: #000;
+            border: 2px dashed #ca8a04;
+        }
+
+        /* تأثير التظليل أثناء القراءة الصوتية */
+        .reading-highlight {
+            background-color: #fca5a5 !important;
+            border-radius: 6px;
+            box-shadow: 0 0 8px rgba(252, 165, 165, 0.6);
+            color: #000 !important;
+            transition: background-color 0.1s ease;
+        }
+
+        .vocab-card.reading-highlight {
+            background-color: #3b82f6 !important;
+            border-color: #2563eb !important;
+            color: white !important;
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .vocab-card.reading-highlight .vocab-ar {
+            display: block !important;
+            color: white !important;
+        }
+
+        .vocab-card.reading-highlight .vocab-en {
+            display: none !important;
+        }
+
+        /* الشبكات */
+        .vocab-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            width: 80%;
+            max-width: 800px;
+            margin-top: 20px;
+        }
+
+        .vocab-grid-2col {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            width: 90%;
+            max-width: 1000px;
+            margin-top: 20px;
+        }
+
+        .vocab-card {
+            background-color: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            color: #000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 60px;
+        }
+
+        .vocab-card:hover {
+            background-color: #10b981;
+            border-color: #059669;
+            color: #ffffff;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(16, 185, 129, 0.2);
+        }
+
+        .vocab-ar { font-family: 'Noto Naskh Arabic', serif; transition: opacity 0.2s; }
+        .vocab-en { display: none; font-family: sans-serif; font-size: 18px; direction: ltr; }
+        .vocab-card:hover .vocab-ar { display: none; }
+        .vocab-card:hover .vocab-en { display: block; }
+
+        /* تعديلات التاب الثالث (تصغير المسافات والبطاقات لمنع التمرير) */
+        #tab3 .vocab-grid {
+            gap: 10px;
+            margin-top: 10px;
+        }
+        #tab3 .vocab-card {
+            padding: 10px;
+            font-size: 18px;
+            min-height: 45px;
+        }
+        #tab3 .vocab-en {
+            font-size: 15px;
+        }
+
+        /* الجملة الحمراء تم وضعها داخل التبويب لكي لا تتداخل أبداً */
+        .bottom-red-text {
+            width: 100%;
+            text-align: left; 
+            color: #dc2626; 
+            font-size: 16px; 
+            font-weight: bold;
+            font-family: sans-serif;
+            direction: ltr; 
+            margin-top: auto; 
+            padding-top: 30px;
+            padding-left: 10px;
+        }
+
+        .tabs-content::-webkit-scrollbar { width: 8px; }
+        .tabs-content::-webkit-scrollbar-track { background: #fefce8; }
+        .tabs-content::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+        .tabs-content::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 1200px) {
+            .interactive-sentence { font-size: 3.2vw !important; }
+            .speaker-icon { font-size: 4vw; }
+            .bloom-image { width: 50px; left: 5px; }
+            .tabs-content { padding-left: 60px; }
+            .vocab-grid-2col { grid-template-columns: 1fr; } 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <header class="top-header">
+            <div class="right-group">
+                <div class="objective-container">
+                    <img src="lo.png" alt="Learning Objective" class="header-icon" onerror="this.src='https://via.placeholder.com/40x40?text=LO'">
+                    <div class="objective-box">
+                        أَنْ أُوَظِّفَ التَّرَاكِيبَ الْجَدِيدَةَ فِي جُمَلٍ تَامَّةٍ
+                    </div>
+                </div>
+
+                <nav class="tabs-nav">
+                    <button class="tab-btn active" onclick="openTab('tab1', this)">
+                        <span class="tab-text-ar">التَّرْكِيبُ الْأَوَّلُ</span>
+                        <span class="tab-text-en">First Structure</span>
+                    </button>
+                    <button class="tab-btn" onclick="openTab('tab2', this)">
+                        <span class="tab-text-ar">التَّرْكِيبُ الثَّانِي</span>
+                        <span class="tab-text-en">Second Structure</span>
+                    </button>
+                    <button class="tab-btn" onclick="openTab('tab3', this)">
+                        <span class="tab-text-ar">التَّرْكِيبُ الثَّالِثُ</span>
+                        <span class="tab-text-en">Third Structure</span>
+                    </button>
+                    <button class="tab-btn" onclick="openTab('tab4', this)">
+                        <span class="tab-text-ar">التَّرْكِيبُ الرَّابِعُ</span>
+                        <span class="tab-text-en">Fourth Structure</span>
+                    </button>
+                    <button class="tab-btn" onclick="openTab('tab5', this)">
+                        <span class="tab-text-ar">التَّرْكِيبُ الْخَامِسُ</span>
+                        <span class="tab-text-en">Fifth Structure</span>
+                    </button>
+                </nav>
+            </div>
+
+            <div class="left-icons-container">
+                <img src="strit.png" alt="Strit" class="header-icon" onerror="this.src='https://via.placeholder.com/40x40?text=S'">
+                <img src="allwrite.png" alt="All Write" class="header-icon" onerror="this.src='https://via.placeholder.com/40x40?text=AW'">
+            </div>
+        </header>
+
+        <main class="tabs-content">
+            
+            <img src="bloom.png" class="bloom-image" alt="Bloom Taxonomy" onerror="this.src='https://via.placeholder.com/80x300?text=Bloom'">
+
+            <div id="tab1" class="tab-pane active">
+                <div class="interactive-sentence" title="اضغط للاستماع" onclick="playSentence('tab1')" style="font-size: 2.4vw;">
+                    <span class="speaker-icon">🔊</span>
+                    <span class="word-hover normal-word" data-en="1 - ">1-</span>
+                    <span class="word-hover green-word" data-en="We agree">نَـتَّـفِـقُ</span>
+                    <span class="word-hover green-word" data-en="or">أَوْ</span>
+                    <span class="word-hover green-word" data-en="disagree">نَـخْـتَـلِـفُ</span>
+                    <span class="word-hover green-word" data-en="it is">فَإنَّـهُ</span>
+                    <span class="word-hover green-word" data-en="indispensable">لَا غِـنَى عَـنْ</span>
+                    <span class="word-hover target-word" data-en="Technology">الـتِّـكْـنُـولُـوجْـيَـا</span>
+                    <span class="word-hover normal-word" data-en="in">فِـي</span>
+                    <span class="word-hover normal-word" data-en="our life">حَـيـاتِـنـا</span>
+                    <span class="word-hover normal-word" data-en="daily">الْـيَـوْمِـيَّـه.</span>
+                </div>
+                <div class="vocab-grid">
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">الْمَاء</span><span class="vocab-en">Water</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">الْحَاسُوب</span><span class="vocab-en">Computer</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">التَّعْلِيم</span><span class="vocab-en">Education</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">الرِّيَاضَة</span><span class="vocab-en">Sport</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">الْقِرَاءَة</span><span class="vocab-en">Reading</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)" style="grid-column: span 2;"><span class="vocab-ar">وَسَائِلُ التَّوَاصُلِ الِاجْتِمَاعِيِّ</span><span class="vocab-en">Social media</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">الطَّعَام</span><span class="vocab-en">Food</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">الدِّرَاسَة</span><span class="vocab-en">Studying</span></div>
+                </div>
+                <div class="bottom-red-text">A.P for more than 6 sentences</div>
+            </div>
+
+            <div id="tab2" class="tab-pane">
+                <div class="interactive-sentence" title="اضغط للاستماع" onclick="playSentence('tab2')">
+                    <span class="speaker-icon">🔊</span>
+                    <span class="word-hover normal-word" data-en="2 - ">2-</span>
+                    <span class="word-hover blue-word" data-en="where">حَـيْـثُ</span>
+                    <span class="word-hover blue-word" data-en="I can">يُـمْـكِـنُـنِـي</span>
+                    <span class="word-hover blue-word" data-en="to">أَنْ</span>
+                    <span class="word-hover blue-word" data-en="browse">أَتَـصَـفَّـحَ</span>
+                    <span class="word-hover blue-word" data-en="the news">الْأَخْـبَـارَ</span>
+                    <span class="word-hover target-word" data-en="...">...................</span>
+                </div>
+                <div class="vocab-grid">
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">السِّيَاسِيَّة</span><span class="vocab-en">Political</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">الِاقْتِصَادِيَّة</span><span class="vocab-en">Economical</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">التَّعْلِيمِيَّة</span><span class="vocab-en">Educational</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">الرِّيَاضِيَّة</span><span class="vocab-en">Sport</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">الِاجْتِمَاعِيَّة</span><span class="vocab-en">Social</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">السِّيَاحِيَّة</span><span class="vocab-en">Touristic</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">الصِّنَاعِيَّة</span><span class="vocab-en">Industrial</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">الزِّرَاعِيَّة</span><span class="vocab-en">Agriculture</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">التِّجَارِيَّة</span><span class="vocab-en">Commercial</span></div>
+                </div>
+                <div class="bottom-red-text">A.P for more than 6 sentences</div>
+            </div>
+
+            <div id="tab3" class="tab-pane">
+                <div class="interactive-sentence" title="اضغط للاستماع" onclick="playSentence('tab3')" style="font-size: 2.4vw;">
+                    <span class="speaker-icon">🔊</span>
+                    <span class="word-hover normal-word" data-en="3 - ">3-</span>
+                    <span class="word-hover normal-word" data-en="And">وَ</span>
+                    <span class="word-hover blue-word" data-en="I interact">أَتَفَاعَلُ</span>
+                    <span class="blue-word"> / </span>
+                    <span class="word-hover blue-word" data-en="I communicate">أَتَوَاصَلُ</span>
+                    <span class="word-hover normal-word" data-en="with">مَعَ</span>
+                    <span class="word-hover normal-word" data-en="my friends">أَصْدِقَائِي</span>
+                    <span class="word-hover normal-word" data-en="via">عَبْرَ</span>
+                    <span class="word-hover normal-word" data-en="sites">مَوَاقِعِ</span>
+                    <span class="word-hover normal-word" data-en="communication">التَّوَاصُلِ</span>
+                    <span class="word-hover normal-word" data-en="social">الِاجْتِمَاعِيِّ</span>
+                    <span class="word-hover red-word" data-en="like">مِثْلَ</span>
+                    <span class="word-hover target-word" data-en="...">.........</span>
+                </div>
+                <div class="vocab-grid">
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">فِيسْبُوك</span><span class="vocab-en">Facebook</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">إِنْسْتِجْرَام</span><span class="vocab-en">Instagram</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">سْنَأب شَات</span><span class="vocab-en">Snapchat</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">تِيك تُوك</span><span class="vocab-en">TikTok</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">وَاتْسَاب</span><span class="vocab-en">WhatsApp</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">تِيلِيجْرَام</span><span class="vocab-en">Telegram</span></div>
+                </div>
+                <div class="bottom-red-text">A.P for more than 6 sentences</div>
+            </div>
+
+            <div id="tab4" class="tab-pane">
+                <div class="interactive-sentence" title="اضغط للاستماع" onclick="playSentence('tab4')">
+                    <span class="speaker-icon">🔊</span>
+                    <span class="word-hover normal-word" data-en="4 - ">4-</span>
+                    <span class="word-hover blue-word" data-en="I prefer">أُفَضِّلُ</span>
+                    <span class="word-hover blue-word" data-en="application">تَطْبِيقَ</span>
+                    <span class="word-hover target-word" data-en="[App Name]">....................</span>
+                    <span class="word-hover red-word" data-en="because it is">لِأَنَّهُ</span>
+                    <span class="word-hover target-word" data-en="[Reason]">................................</span>
+                </div>
+                <div class="vocab-grid">
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">مُمْتِع</span><span class="vocab-en">Fun</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">سَرِيع</span><span class="vocab-en">Fast</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">مُسَلِّي</span><span class="vocab-en">Entertaining</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">مُتَنَوِّع</span><span class="vocab-en">Diverse</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">سَهْل</span><span class="vocab-en">Easy</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">رَائِع</span><span class="vocab-en">Amazing</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">عَمَلِيّ</span><span class="vocab-en">Practical</span></div>
+                </div>
+                <div class="bottom-red-text">A.P for more than 6 sentences</div>
+            </div>
+
+            <div id="tab5" class="tab-pane">
+                <div class="interactive-sentence" title="اضغط للاستماع" onclick="playSentence('tab5')">
+                    <span class="speaker-icon">🔊</span>
+                    <span class="word-hover normal-word" data-en="5 - ">5-</span>
+                    <span class="word-hover blue-word" data-en="Through">مِنْ خِلَالِ</span>
+                    <span class="word-hover blue-word" data-en="technology">التَّكْنُولُوجْيَا</span>
+                    <span class="word-hover blue-word" data-en="and">وَ</span>
+                    <span class="word-hover blue-word" data-en="the internet">الْإِنْتَرْنِت</span>
+                    <span class="word-hover blue-word" data-en="I enjoy">أَسْتَمْتِعُ</span>
+                    <span class="word-hover blue-word" data-en="with">بِـ</span>
+                    <span class="word-hover target-word" data-en="...">......................</span>
+                </div>
+                
+                <div class="vocab-grid-2col">
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">لَعِبِ الْأَلْعَابِ الْإِلِكْتُرُونِيَّةِ</span><span class="vocab-en">Playing electronic games</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">مُشَارَكَةِ الصُّوَرِ مَعَ أَصْدِقَائِي</span><span class="vocab-en">Sharing photos with my friends</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">مُشَاهَدَةِ الْفِيدْيُوهَاتِ التَّعْلِيمِيَّةِ</span><span class="vocab-en">Watching educational videos</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">التَّحَدُّثِ مَعَ عَائِلَتِي عَبْرَ الْفِيدْيُو</span><span class="vocab-en">Talking with my family on video calls</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">الْبَحْثِ عَنْ مَعْلُومَاتٍ جَدِيدَةٍ</span><span class="vocab-en">Searching for new information</span></div>
+                    <div class="vocab-card" onclick="playVocab(this)"><span class="vocab-ar">الِاسْتِمَاعِ إِلَى الْمُوسِيقَى</span><span class="vocab-en">Listening to music</span></div>
+                    
+                    <div class="vocab-card" onclick="playVocab(this)" style="grid-column: 1 / -1; justify-self: center; width: calc(50% - 7.5px);">
+                        <span class="vocab-ar">قِرَاءَةِ الْقِصَصِ الْإِلِكْتُرُونِيَّةِ</span>
+                        <span class="vocab-en">Reading digital stories</span>
+                    </div>
+                </div>
+                <div class="bottom-red-text">A.P for more than 6 sentences</div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        function openTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btnElement.classList.add('active');
+            
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                document.querySelectorAll('.reading-highlight').forEach(el => el.classList.remove('reading-highlight'));
+            }
+        }
+
+        function playSentence(tabId) {
+            if (!('speechSynthesis' in window)) {
+                alert("عذراً، متصفحك لا يدعم خاصية النطق الصوتي.");
+                return;
+            }
+
+            const tab = document.getElementById(tabId);
+            window.speechSynthesis.cancel(); 
+            
+            document.querySelectorAll('.reading-highlight').forEach(el => el.classList.remove('reading-highlight'));
+
+            const elements = Array.from(tab.querySelectorAll('.interactive-sentence > span'));
+            const vocabCards = tab.querySelectorAll('.vocab-card');
+            
+            let textToSpeak = "";
+            let wordMap = [];
+            let blankCounter = 0;
+
+            elements.forEach(el => {
+                let text = el.innerText.trim();
+                if (!text || el.classList.contains('speaker-icon')) return;
+
+                if (/^\d+\s*-?$/.test(text)) return;
+                
+                let highlightTarget = el;
+                let speakWord = text.replace(/[\u0640]/g, '');
+
+                if (text === '/') {
+                    speakWord = "أَوْ";
+                } else if (text.includes('...')) {
+                    if (tabId === 'tab4' && blankCounter === 0) {
+                        speakWord = "يُوتْيُوب"; 
+                    } else {
+                        const card = vocabCards[0]; 
+                        if (card) {
+                            speakWord = card.querySelector('.vocab-ar').textContent.replace(/[\u0640]/g, '');
+                            highlightTarget = card;
+                        }
+                    }
+                    blankCounter++;
+                }
+
+                if (speakWord) {
+                    let start = textToSpeak.length;
+                    textToSpeak += speakWord + " ";
+                    let end = textToSpeak.length - 1;
+                    wordMap.push({ start, end, element: highlightTarget });
+                }
+            });
+
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            utterance.lang = 'ar-SA';
+            utterance.rate = 0.85; 
+
+            utterance.onboundary = (e) => {
+                if (e.name === 'word') {
+                    document.querySelectorAll('.reading-highlight').forEach(el => el.classList.remove('reading-highlight'));
+                    
+                    const match = wordMap.find(m => e.charIndex >= m.start && e.charIndex <= m.end + 1);
+                    if (match && match.element) {
+                        match.element.classList.add('reading-highlight');
+                    }
+                }
+            };
+
+            utterance.onend = () => document.querySelectorAll('.reading-highlight').forEach(el => el.classList.remove('reading-highlight'));
+            utterance.onerror = () => document.querySelectorAll('.reading-highlight').forEach(el => el.classList.remove('reading-highlight'));
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function playVocab(cardElement) {
+            event.stopPropagation();
+
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+
+            document.querySelectorAll('.reading-highlight').forEach(el => el.classList.remove('reading-highlight'));
+            
+            cardElement.classList.add('reading-highlight');
+
+            let text = cardElement.querySelector('.vocab-ar').textContent.trim();
+            
+            let utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'ar-SA';
+            utterance.rate = 0.85;
+
+            utterance.onend = () => cardElement.classList.remove('reading-highlight');
+            utterance.onerror = () => cardElement.classList.remove('reading-highlight');
+
+            window.speechSynthesis.speak(utterance);
+        }
+    </script>
+</body>
+</html>

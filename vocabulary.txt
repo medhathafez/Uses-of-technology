@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المفردات - ادرس العبارات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: #f9f9f9; 
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 2vh 1vw; 
+            font-family: 'Noto Naskh Arabic', serif; 
+            direction: rtl;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 1200px;
+            background: #ffffff;
+            border-radius: 12px; 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            padding: 30px;
+            min-height: 85vh;
+            border: 1px solid #e5e7eb;
+        }
+
+        /* --- شريط الرأس --- */
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header-icons {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .icon-img {
+            height: 50px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        /* المربع الأزرق المنقط (ادرس العبارات) */
+        .main-title-box {
+            background-color: #176B87; /* لون مقارب للصورة */
+            color: #000000;
+            font-size: 36px;
+            font-weight: 900;
+            padding: 15px 80px;
+            border: 6px dotted #041C32; /* إطار منقط أزرق داكن */
+            text-align: center;
+            border-radius: 4px;
+        }
+
+        /* أيقونة Q */
+        .q-icon-box {
+            background-color: #4A55A2;
+            color: white;
+            font-size: 50px;
+            font-weight: bold;
+            font-family: sans-serif;
+            width: 100px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 4px;
+        }
+
+        /* --- الهدف باللون الأحمر --- */
+        .objective-text {
+            color: #dc2626; /* أحمر */
+            font-size: 24px;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        /* --- منطقة المحتوى (اليمين واليسار) --- */
+        .content-split {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 40px;
+            padding: 0 20px;
+        }
+
+        /* --- الجانب الأيمن (الخطوات الست) --- */
+        .steps-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            max-width: 350px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end; /* محاذاة لليمين */
+            gap: 20px;
+            font-size: 32px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .step-icon {
+            font-size: 40px; /* حجم الإيموجي أو الأيقونة */
+            display: inline-block;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        /* --- الجانب الأيسر (الرابط والخريطة الذهنية) --- */
+        .left-content {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding-top: 20px;
+        }
+
+        .quizlet-link {
+            font-family: sans-serif;
+            font-size: 18px;
+            color: #3b82f6;
+            text-decoration: underline;
+            margin-bottom: 5px;
+            direction: ltr; /* اتجاه الرابط إنجليزي */
+            display: inline-block;
+        }
+
+        .vocab-text {
+            font-family: sans-serif;
+            font-size: 16px;
+            color: #4b5563;
+            margin-bottom: 80px; /* مسافة لدفع النص التالي للأسفل */
+        }
+
+        .mindmap-instructions {
+            font-size: 26px;
+            font-weight: 900;
+            color: #374151;
+            line-height: 1.5;
+            text-align: right;
+            margin-top: 50px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <div class="header-section">
+            <div class="header-icons">
+                <img src="allwrite.png" alt="All Write" class="icon-img" onerror="this.src='https://via.placeholder.com/120x50?text=AllWrite'">
+            </div>
+            
+            <div class="main-title-box">
+                ادرس العبارات
+            </div>
+
+            <div class="q-icon-box">
+                Q
+            </div>
+        </div>
+
+        <div class="objective-text">
+            الهدف: أن أوظف المفردات الجديدة في جمل تامة / سياقات مختلفة.
+        </div>
+
+        <div class="content-split">
+            
+            <div class="left-content">
+                <a href="https://quizlet.com/_cu1x7q?x=1jqt&i=3ux72e" target="_blank" class="quizlet-link">
+                    https://quizlet.com/_cu1x7q?x=1jqt&i=3ux72e
+                </a>
+                <div class="vocab-text">Text vocab</div>
+
+                <div class="mindmap-instructions">
+                    ارسم خريطة ذهنية للكلمات الجديدة<br>
+                    ثم استخدمها في جمل تامة
+                </div>
+            </div>
+
+            <div class="steps-container">
+                <div class="step-item">
+                    <span>1. استمع</span>
+                    <span class="step-icon">📢</span> 
+                </div>
+                <div class="step-item">
+                    <span>2. اقرأ</span>
+                    <span class="step-icon">📖</span>
+                </div>
+                <div class="step-item">
+                    <span>3. قُل</span>
+                    <span class="step-icon">🗣️</span>
+                </div>
+                <div class="step-item">
+                    <span>4. اكتب</span>
+                    <span class="step-icon">✍️</span>
+                </div>
+                <div class="step-item">
+                    <span>5. قيم نفسك</span>
+                    <span class="step-icon">✅❌</span>
+                </div>
+                <div class="step-item">
+                    <span>6. كرر مرة أخرى</span>
+                    <span class="step-icon">🔁</span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
