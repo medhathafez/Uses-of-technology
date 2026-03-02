@@ -1,165 +1,223 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" translate="no">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google" content="notranslate">
     <title>استخرج من النص - التكنولوجيا</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             background-color: #f3f4f6; 
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
-            padding: 2vh 1vw; 
+            align-items: center;
+            padding: 5px; 
             font-family: 'Noto Naskh Arabic', serif; 
+            overflow: hidden;
+        }
+
+        #welcome-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(243, 244, 246, 0.98);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .welcome-box {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .input-group {
+            margin: 20px 0;
+            direction: ltr;
+        }
+
+        .input-group input {
+            padding: 10px;
+            font-size: 18px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .start-btn {
+            padding: 10px 40px;
+            font-size: 20px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
         }
 
         .app-container {
             display: flex;
             flex-direction: row;
             width: 100%;
-            max-width: 1400px;
+            max-width: 1400px; 
             background: white;
             border-radius: 12px; 
             box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            overflow-y: auto;
-            max-height: 96vh;
+            height: 95vh;
+            position: relative;
+            filter: blur(5px); 
         }
 
-        .app-container::-webkit-scrollbar { width: 10px; }
-        .app-container::-webkit-scrollbar-track { background: #f9fafb; border-radius: 12px;}
-        .app-container::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
-        .app-container::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
-
         .sidebar {
-            width: 320px;
+            width: 350px; 
             background-color: #ffffff;
-            padding: 15px 20px; 
+            padding: 15px 10px; 
             display: flex;
             flex-direction: column;
             border-right: 1px solid #e5e7eb; 
             direction: ltr;
-            height: fit-content;
         }
 
-        .title-container { text-align: right; margin-bottom: 15px; direction: rtl; }
-        .title {
-            color: #000000;
-            font-size: 18px; 
-            font-weight: 900;
-            position: relative;
-            display: inline-block;
-            padding-bottom: 5px;
-        }
-        .title::after { content: ''; position: absolute; bottom: 0; right: 0; width: 100%; height: 3px; background-color: #eab308; }
-        
-        .instruction { 
-            font-size: 11px; 
-            color: #4b5563; 
-            margin-bottom: 12px; 
-            text-align: left; 
-            direction: ltr; 
+        .instruction-text {
+            font-size: 11px;
+            color: #4b5563;
+            text-align: left;
+            direction: ltr;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            font-family: sans-serif;
             line-height: 1.3;
-            font-family: sans-serif; 
         }
+
+        .score-stamp {
+            display: none;
+            color: #ef4444;
+            font-size: 18px;
+            font-weight: 900;
+            text-align: center;
+            border: 3px dashed #ef4444;
+            padding: 5px;
+            transform: rotate(-5deg);
+            margin-bottom: 5px;
+        }
+
+        .title-container { text-align: right; margin-bottom: 5px; direction: rtl; }
+        .title { color: #000; font-size: 18px; font-weight: 900; border-bottom: 3px solid #eab308; display: block; }
         
-        .categories-list { display: flex; flex-direction: column; gap: 6px; direction: rtl; }
+        .categories-list { display: flex; flex-direction: column; gap: 4px; direction: rtl; flex-grow: 1; overflow-y: auto; } 
         
         .category-btn {
-            display: flex; align-items: center; justify-content: flex-start; 
-            padding: 8px 10px; 
+            display: flex; align-items: center; 
+            padding: 8px 12px; 
             background-color: #ffffff;
-            border: 2px solid #f3f4f6; /* جعل الإطار أوضح قليلاً */
+            border: 1px solid #f3f4f6;
             border-radius: 8px;
-            cursor: pointer; transition: all 0.3s ease; position: relative;
-        }
-        .category-btn:hover { background-color: #f9fafb; }
-
-        /* التعديل الجديد: تظليل الزر المختار بنفس لون الإجابات */
-        .category-btn.active {
-            border-style: solid;
-            box-shadow: inset 0 0 0 2px rgba(0,0,0,0.05); /* ظل داخلي خفيف */
-        }
-        
-        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-left: 10px; flex-shrink: 0; }
-        
-        .cat-text-container { 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-            align-items: flex-start; 
-            width: 100%; 
-            overflow: hidden;
-        }
-        .cat-label { 
-            font-size: 15px; 
-            color: #000000;
-            font-weight: 900;
+            cursor: pointer; position: relative;
             white-space: nowrap; 
-        } 
-        .cat-counter { 
-            font-size: 11px; 
-            color: #6b7280; 
-            margin-top: 0px; 
-            font-family: sans-serif; 
+        }
+
+        .category-btn .translation-popup {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            display: none;
+            z-index: 10;
+        }
+
+        .dot { width: 10px; height: 10px; border-radius: 50%; margin-left: 10px; flex-shrink: 0; }
+        
+        .cat-label { font-size: 14px; font-weight: 900; color: #000; } 
+        .cat-counter { font-size: 11px; color: #6b7280; font-family: sans-serif; margin-right: 5px; }
+        .cat-status { font-size: 12px; font-weight: bold; margin-right: auto; padding-right: 5px; }
+
+        .submit-btn {
+            margin-top: 10px;
+            padding: 12px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            font-family: sans-serif;
         }
 
         .text-area {
             flex-grow: 1; 
             background-color: #fefce8; 
-            padding: 30px 4vw; 
+            padding: 20px 35px; 
             direction: rtl;
-            height: fit-content;
+            overflow-y: auto;
         }
 
         .reading-text {
-            font-size: 20px; 
+            font-size: 22px; 
             line-height: 2.5; 
-            color: #000000;
+            color: #000;
             text-align: justify;
-            font-weight: 900;
+            font-weight: bold; 
         }
 
         .word {
-            cursor: pointer; padding: 2px 4px; border-radius: 6px; transition: all 0.3s ease;
-            border-bottom: 3px solid transparent; display: inline-block;
-        }
-        .word:hover { background-color: rgba(0,0,0,0.05); }
-        .word.highlighted { color: #000; pointer-events: none; }
-        
-        .floating-praise {
-            position: absolute;
-            font-weight: 900;
-            font-size: 20px;
-            pointer-events: none;
-            animation: floatUp 1s ease-out forwards;
-            z-index: 1000;
-        }
-
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-40px) scale(1.5); }
+            cursor: pointer; padding: 1px 3px; border-radius: 4px;
+            border-bottom: 2px solid transparent; display: inline-block;
         }
 
         @media (max-width: 900px) {
-            .app-container { flex-direction: column-reverse; max-height: none; }
-            .sidebar { width: 100%; border-right: none; border-top: 1px solid #e5e7eb; }
+            .app-container { flex-direction: column-reverse; height: auto; overflow: visible;}
+            .sidebar { width: 100%; border: none; }
+            body { overflow: auto; height: auto; }
         }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="title-container">
-                <h2 class="title">اسْتَخْرِج مِن النَّصِّ</h2>
+    <div id="welcome-screen">
+        <div class="welcome-box">
+            <h2>Welcome to the linguistic analysis activity.</h2>
+            <div class="input-group">
+                <input type="text" id="student-name" placeholder="Your name..." autocomplete="off">
             </div>
-            <p class="instruction">Click the item once, then select <strong>all</strong> matching words in the text.</p>
+            <button class="start-btn" onclick="startQuiz()">Start</button>
+        </div>
+    </div>
+
+    <div class="app-container" id="capture-area">
+        <aside class="sidebar">
+            <div class="score-stamp" id="score-stamp">
+                <div id="stamp-name"></div>
+                <div id="stamp-score"></div>
+            </div>
+            <div class="title-container">
+                <h2 class="title">اسْتَخْرِج مِن النَّصِّ</h2>
+                <p class="instruction-text">
+                    (Click an item to hear it & select 1 matching word in the text. Click Submit when done.)
+                </p>
+            </div>
+            
             <div class="categories-list" id="categories-container"></div>
+            
+            <button class="submit-btn" id="submit-btn" onclick="submitQuiz()">Submit & Send to Teacher</button>
         </aside>
 
         <main class="text-area">
@@ -168,163 +226,155 @@
     </div>
 
     <script>
-        const successWords = ["رَائِع", "مُمْتَاز", "جَيِّد جِدًّا", "أَحْسَنْت"];
-
-        const categories = [
-            { id: 'c1', label: 'جمع مؤنث سالم', color: '#3b82f6' },
-            { id: 'c2', label: 'جمع تكسير', color: '#22c55e' },
-            { id: 'c3', label: 'فعل مضارع', color: '#f59e0b' },
-            { id: 'c4', label: 'مرادف (مُمْتِعَة)', color: '#8b5cf6' },
-            { id: 'c5', label: 'مرادف (من خلال)', color: '#06b6d4' },
-            { id: 'c6', label: 'ضد (نَتَّفِقُ)', color: '#ef4444' },
-            { id: 'c7', label: 'جمع (مَوْقِع)', color: '#ec4899' },
-            { id: 'c8', label: 'مفرد (التَّحَدِّيَات)', color: '#14b8a6' }
+        let studentName = "";
+        let categories = [
+            { id: 'c1', label: 'جمع مؤنث سالم', en: 'Sound Feminine Plural', color: '#3b82f6' },
+            { id: 'c2', label: 'جمع تكسير', en: 'Broken Plural', color: '#22c55e' },
+            { id: 'c3', label: 'فعل مضارع', en: 'Present Tense Verb', color: '#f59e0b' },
+            { id: 'c5', label: 'مرادف (من خلال)', en: 'Synonym', color: '#06b6d4' },
+            { id: 'c6', label: 'ضد (نَتَّفِقُ)', en: 'Antonym', color: '#ef4444' },
+            { id: 'c7', label: 'جمع (مَوْقِع)', en: 'Plural', color: '#ec4899' },
+            { id: 'c8', label: 'مفرد (التَّحَدِّيَات)', en: 'Singular', color: '#14b8a6' },
+            { id: 'c9', label: 'أسلوب تَعَجُّب', en: 'Exclamatory Style', color: '#8b5cf6' }
         ];
 
-        const correctAnswers = {
+        // تم تحديث الإجابة لتكون الجملة كاملة
+        const rawAnswers = {
             'c1': ['حالات', 'المنشورات', 'الفيديوهات', 'مهارات'],
             'c2': ['الاخبار', 'الاحداث', 'اصدقائي', 'مواقع', 'الصور', 'الالعاب', 'المشاكل', 'المتاجر'],
             'c3': ['نتفق', 'نختلف', 'يمكنني', 'اتصفح', 'اتعرف', 'تكون', 'اقضي', 'اتفاعل', 'نراسل', 'نشارك', 'نتبادل', 'استمتع', 'تعطيني', 'اطور', 'اضيف', 'اعشق'],
-            'c4': ['للتسليه', 'والتسليه', 'للمتعه', 'والمتعه'], 
             'c5': ['عبر'],
             'c6': ['نختلف'],
             'c7': ['مواقع'], 
-            'c8': ['التحدي']
+            'c8': ['التحدي'],
+            'c9': ['ما أهم التكنولوجيا !'] 
         };
 
-        const rawText = `نَتَّفِقُ أَوْ نَخْتَلِفُ، فَإِنَّهُ لَا غِنَى عَنِ التَّكْنُولُوجِيَا فِي حَيَاتِنَا الْيَوْمِيَّةِ ، حَيْثُ يُمْكِنُنِي أَنْ أَتَصَفَّحَ الْأَخْبَارَ وَ أَتَعَرَّفَ عَلَى الْأَحْدَاثِ الْمَحَلِّيَّةِ وَالْعَالَمِيَّةِ ، وَ أَيْضًا حَالَاتِ الطَّقْسِ وَ النَّشْرَةِ الْجَوِّيَّةِ . <br> وَفِي وَقْتِ الْفَرَاغِ، تَكُونُ التَّكْنُولُوجِيَا مَصْدَرًا لِلتَّرْفِيهِ وَالتَّسْلِيَةِ . أَقْضِي الْكَثِيرَ مِنَ الْوَقْتِ وَأَنَا أَتَفَاعَلُ مَعَ أَصْدِقَائِي عَبْرَ مَوَاقِعِ التَّوَاصُلِ الِاجْتِمَاعِيِّ مِثْلَ فِيسْبُوك وَ إِنْسْتِجْرَام وَ سْنَأب شَات، حَيْثُ نُرَاسِلُ بَعْضَنَا، وَ نُشَارِكُ الْمَنْشُورَاتِ وَ الْفِيدْيُوهَاتِ، وَ نَتَبَادَلُ الْأَخْبَارَ وَ الصُّوَرَ . <br> كَذَلِكَ، أَسْتَمْتِعُ بِلَعِبِ الْأَلْعَابِ الْإِلِكْتُرُونِيَّةِ الَّتِي تُعْطِينِي فُرْصَةً لِلْمُتْعَةِ وَ التَّحَدِّي، وَ فِي نَفْسِ الْوَقْتِ أُطَوِّرُ مَهَارَاتِ التَّفْكِيرِ وَالتَّخْطِيطِ وَحَلِّ الْمَشَاكِلِ . وَ أُضِيفُ أَيْضًا أَنِّي أَعْشَقُ التَّسَوُّقَ عَبْرَ الْمَتَاجِرِ الْإِلِكْتُرُونِيَّةِ عَلَى الْإِنْتِرْنِت .`;
+        const rawText = `نَتَّفِقُ أَوْ نَخْتَلِفُ، فَإِنَّهُ لَا غِنَى عَنِ التِّكْنُولُوجْيَا فِي حَيَاتِنَا الْيَوْمِيَّةِ ، حَيْثُ يُمْكِنُنِي أَنْ أَتَصَفَّحَ الْأَخْبَارَ وَ أَتَعَرَّفَ عَلَى الْأَحْدَاثِ الْمَحَلِّيَّةِ وَالْعَالَمِيَّةِ ، وَ أَيْضًا حَالَاتِ الطَّقْسِ وَ النَّشْرَةِ الْجَوِّيَّةِ. ما أهم التكنولوجيا ! <br>
+وَفِي وَقْتِ الْفَرَاغِ، تَكُونُ التِّكْنُولُوجْيَا مَصْدَرًا لِلتَّرْفِيهِ وَالتَّسْلِيَةِ. أَقْضِي الْكَثِيرَ مِنَ الْوَقْتِ وَأَنَا أَتَفَاعَلُ مَعَ أَصْدِقَائِي عَبْرَ مَوَاقِعِ التَّوَاصُلِ الِاجْتِمَاعِيِّ مِثْلَ فِيسْبُوك وَ إِنْسْتِجْرَام وَ سْنَابْ شَات، حَيْثُ نُرَاسِلُ بَعْضَنَا، وَ نُشَارِكُ الْمَنشُورَاتِ وَ الْفِيدْيُوهَاتِ، وَ نَتَبَادَلُ الْأَخْبَارَ وَ الصُّوَرَ. <br>
+كَذَلِكَ، أَسْتَمْتِعُ بِلَعِبِ الْأَلْعَابِ الإِلِكْتُرُونِيَّةِ الَّتِي تُعْطِينِي فُرْصَةً لِلْمُتْعَةِ وَ التَّحَدِّي، وَ فِي نَفْسِ الْوَقْتِ أُطَوِّرُ مَهَارَاتِ التَّفْكِيرِ وَالتَّخْطِيطِ وَحَلِّ الْمَشَاكِلِ. وَ أُضِيفُ أَيْضًا أَنِّي أَعْشَقُ التَّسَوُّقَ عَبْرَ الْمَتَاجِرِ الإِلِكْتُرُونِيَّةِ عَلَى الإِنْتِرْنِت.`;
+
+        function normalizeArabic(text) {
+            return text.replace(/[\u064B-\u065F\u0640]/g, "").replace(/[أإآٱ]/g, "ا").replace(/ة/g, "ه").replace(/[يى]/g, "ي").replace(/[،.؛؟!"'!-]/g, "").trim();
+        }
+
+        function startQuiz() {
+            let nameInput = document.getElementById('student-name').value.trim();
+            if (!nameInput) return alert("Please enter your name");
+            studentName = nameInput;
+            document.getElementById('welcome-screen').style.display = 'none';
+            document.getElementById('capture-area').style.filter = 'none';
+        }
 
         const textContainer = document.getElementById('text-container');
-        let processedHTML = rawText.replace(/([\u0600-\u06FF]+)/g, '<span class="word">$1</span>');
-        textContainer.innerHTML = processedHTML;
+        
+        // استبدال مؤقت لجملة التعجب لمنع تقسيمها
+        let processedText = rawText.replace('ما أهم التكنولوجيا !', 'EXACT_PHRASE_MARKER');
+        processedText = processedText.replace(/([\u0600-\u06FF]+)/g, '<span class="word">$1</span>');
+        // إعادة جملة التعجب ككتلة واحدة (span واحد)
+        processedText = processedText.replace('EXACT_PHRASE_MARKER', '<span class="word">ما أهم التكنولوجيا !</span>');
+        
+        textContainer.innerHTML = processedText;
 
-        function normalizeArabic(word) {
-            return word.replace(/[\u064B-\u065F\u0640]/g, "") 
-                       .replace(/[أإآٱ]/g, "ا") 
-                       .replace(/ة/g, "ه") 
-                       .replace(/[يى]/g, "ي") 
-                       .replace(/[،.؛؟]/g, "") 
-                       .trim();
-        }
-
-        function hexToRgba(hex, alpha) {
-            let r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
-            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-        }
-
-        let remainingAnswers = {};
-        categories.forEach(cat => remainingAnswers[cat.id] = 0);
-
-        const allWordSpans = document.querySelectorAll('.word');
-        allWordSpans.forEach(span => {
-            let cleanWord = normalizeArabic(span.textContent);
-            for (const [catId, answers] of Object.entries(correctAnswers)) {
-                if (answers.includes(cleanWord)) {
-                    remainingAnswers[catId]++;
-                    let validFor = span.dataset.validCats ? span.dataset.validCats.split(',') : [];
-                    validFor.push(catId);
-                    span.dataset.validCats = validFor.join(',');
-                }
-            }
+        const allSpans = document.querySelectorAll('.word');
+        const counts = {};
+        categories.forEach(cat => {
+            let validList = rawAnswers[cat.id].map(normalizeArabic);
+            let found = 0;
+            allSpans.forEach(s => { if(validList.includes(normalizeArabic(s.textContent))) found++; });
+            counts[cat.id] = found; 
         });
 
-        const categoriesContainer = document.getElementById('categories-container');
-        let activeCategoryId = null;
+        let activeId = null;
         let activeColor = null;
-        let activeBtn = null;
+        let userChoices = {};
+        let translationTimers = {};
 
+        const catListUI = document.getElementById('categories-container');
         categories.forEach(cat => {
             const btn = document.createElement('div');
             btn.className = 'category-btn';
             btn.id = `btn-${cat.id}`;
-            btn.onclick = () => selectCategory(cat.id, cat.color, btn);
-            
             btn.innerHTML = `
-                <span class="dot" style="background-color: ${cat.color};"></span>
-                <div class="cat-text-container">
+                <div class="translation-popup" id="popup-${cat.id}">${cat.en}</div>
+                <span class="dot" style="background-color: ${cat.color}"></span>
+                <div style="display:flex; align-items: baseline;">
                     <span class="cat-label">${cat.label}</span>
-                    <span class="cat-counter" id="counter-${cat.id}">(${remainingAnswers[cat.id]} answers)</span>
+                    <span class="cat-counter">(Answers: ${counts[cat.id]})</span>
                 </div>
+                <span class="cat-status" id="status-${cat.id}"></span>
             `;
-            categoriesContainer.appendChild(btn);
-        });
+            btn.onclick = () => {
+                document.querySelectorAll('.category-btn').forEach(b => {b.style.background="white";});
+                btn.style.background = cat.color + "33";
+                activeId = cat.id;
+                activeColor = cat.color;
 
-        function selectCategory(id, color, btnElement) {
-            // إعادة الأزرار السابقة لشكلها الطبيعي
-            document.querySelectorAll('.category-btn').forEach(b => {
-                b.classList.remove('active');
-                b.style.backgroundColor = "#ffffff";
-                b.style.borderColor = "#f3f4f6";
-            });
+                const popup = document.getElementById(`popup-${cat.id}`);
+                popup.style.display = 'block';
+                if(translationTimers[cat.id]) clearTimeout(translationTimers[cat.id]);
+                translationTimers[cat.id] = setTimeout(() => {
+                    popup.style.display = 'none';
+                }, 5000);
 
-            // تظليل الزر المختار بنفس نمط الإجابات
-            btnElement.classList.add('active');
-            btnElement.style.backgroundColor = hexToRgba(color, 0.3);
-            btnElement.style.borderColor = color;
-
-            activeBtn = btnElement;
-            activeCategoryId = id;
-            activeColor = color;
-        }
-
-        function playErrorSound() {
-            if ('speechSynthesis' in window) {
-                let msg = new SpeechSynthesisUtterance("حَاوِلْ مَرَّةً أُخْرَى");
-                msg.lang = 'ar-SA';
-                window.speechSynthesis.speak(msg);
-            }
-        }
-
-        function playSuccessSound() {
-            if ('speechSynthesis' in window) {
-                let randomWord = successWords[Math.floor(Math.random() * successWords.length)];
-                let msg = new SpeechSynthesisUtterance(`${randomWord}، إِجَابَة صَحِيحَة`);
-                msg.lang = 'ar-SA';
-                window.speechSynthesis.speak(msg);
-            }
-        }
-
-        function showFloatingPraise(element, color, text) {
-            let rect = element.getBoundingClientRect();
-            let praiseEl = document.createElement('div');
-            praiseEl.className = 'floating-praise';
-            praiseEl.innerText = text;
-            praiseEl.style.color = color;
-            praiseEl.style.left = rect.left + 'px';
-            praiseEl.style.top = (rect.top - 20) + 'px';
-            document.body.appendChild(praiseEl);
-            setTimeout(() => praiseEl.remove(), 1000);
-        }
-
-        allWordSpans.forEach(span => {
-            span.onclick = function() {
-                if (!activeCategoryId) {
-                    alert("Please select an item from the sidebar first.");
-                    return;
-                }
-                let validCategories = this.dataset.validCats ? this.dataset.validCats.split(',') : [];
-                if (validCategories.includes(activeCategoryId)) {
-                    this.style.backgroundColor = hexToRgba(activeColor, 0.3);
-                    this.style.borderBottomColor = activeColor;
-                    this.classList.add('highlighted'); 
-                    playSuccessSound();
-                    let randomWord = successWords[Math.floor(Math.random() * successWords.length)];
-                    showFloatingPraise(this, activeColor, randomWord);
-                    if (remainingAnswers[activeCategoryId] > 0) {
-                        remainingAnswers[activeCategoryId]--;
-                        document.getElementById(`counter-${activeCategoryId}`).innerText = `(${remainingAnswers[activeCategoryId]} answers)`;
-                        if (remainingAnswers[activeCategoryId] === 0) {
-                            document.getElementById(`btn-${activeCategoryId}`).style.opacity = '0.5'; 
-                        }
-                    }
-                } else {
-                    playErrorSound();
-                    this.style.transform = "translateX(5px)";
-                    setTimeout(() => this.style.transform = "translateX(-5px)", 100);
-                    setTimeout(() => this.style.transform = "translateX(0)", 200);
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    let m = new SpeechSynthesisUtterance(cat.label); m.lang='ar-SA'; window.speechSynthesis.speak(m);
                 }
             };
+            catListUI.appendChild(btn);
         });
+
+        allSpans.forEach(span => {
+            span.onclick = () => {
+                if(!activeId) return alert("Select a requirement first");
+                if(userChoices[activeId]) {
+                    userChoices[activeId].style.background = "";
+                    userChoices[activeId].style.borderBottomColor = "transparent";
+                }
+                userChoices[activeId] = span;
+                span.style.background = activeColor + "44";
+                span.style.borderBottomColor = activeColor;
+                document.getElementById(`status-${activeId}`).innerText = " Selected ";
+                document.getElementById(`status-${activeId}`).style.color = "#3b82f6";
+            };
+        });
+
+        function submitQuiz() {
+            let score = 0;
+            categories.forEach(cat => {
+                let sel = userChoices[cat.id];
+                let stat = document.getElementById(`status-${cat.id}`);
+                if(sel && rawAnswers[cat.id].map(normalizeArabic).includes(normalizeArabic(sel.textContent))) {
+                    score++; stat.innerText = " ✔ "; stat.style.color = "#10b981";
+                } else {
+                    stat.innerText = " ✘ "; stat.style.color = "#ef4444";
+                }
+            });
+
+            document.getElementById('score-stamp').style.display = 'block';
+            document.getElementById('stamp-name').innerText = studentName;
+            document.getElementById('stamp-score').innerText = `Score: ${score}/${categories.length}`;
+            document.getElementById('submit-btn').style.display = 'none';
+
+            allSpans.forEach(s => {
+                let w = normalizeArabic(s.textContent);
+                for(let id in rawAnswers) {
+                    if(rawAnswers[id].map(normalizeArabic).includes(w)) {
+                        s.style.borderBottom = `2px dashed ${categories.find(c=>c.id===id).color}`;
+                    }
+                }
+            });
+
+            setTimeout(() => {
+                html2canvas(document.body).then(canvas => {
+                    let a = document.createElement('a');
+                    a.download = `${studentName}_result.png`;
+                    a.href = canvas.toDataURL();
+                    a.click();
+                });
+            }, 500);
+        }
     </script>
 </body>
 </html>

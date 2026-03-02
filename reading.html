@@ -10,7 +10,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Dubai', sans-serif;
+            font-family: 'Dubai', sans-serif; /* الخط العام للصفحة */
         }
 
         body {
@@ -44,9 +44,31 @@
             padding: 2vh 1.5rem;
             display: flex;
             flex-direction: column;
-            gap: 1.5vh;
+            gap: 1.2vh;
             justify-content: center;
             align-items: center;
+        }
+
+        /* تنسيق التعليمات العلوية */
+        .instructions-text {
+            font-size: 12px;
+            color: #475569;
+            text-align: left;
+            width: 100%;
+            line-height: 1.4;
+            font-family: Arial, sans-serif;
+            margin-bottom: 5px;
+        }
+
+        /* تنسيق الملاحظة السفلية */
+        .submit-note {
+            font-size: 12px;
+            color: #64748b;
+            text-align: center;
+            width: 100%;
+            line-height: 1.3;
+            font-family: Arial, sans-serif;
+            margin-top: 2px;
         }
 
         .speed-controls {
@@ -56,11 +78,11 @@
             padding: 4px;
             border-radius: 20px;
             width: 100%;
-            margin-bottom: 1vh;
+            margin-bottom: 0.5vh;
         }
         .speed-btn {
             flex: 1;
-            padding: 0.5rem 0;
+            padding: 0.4rem 0;
             border: none;
             border-radius: 16px;
             background: transparent;
@@ -72,9 +94,8 @@
         }
         .speed-btn.active { background: white; color: #0f172a; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
-        hr { border: 0; height: 1px; background: #cbd5e1; width: 80%; margin: 1vh 0; }
+        hr { border: 0; height: 1px; background: #cbd5e1; width: 80%; margin: 0.5vh 0; }
 
-        /* تصميم الأزرار والتلميحات (Tooltips) */
         .btn-wrapper {
             position: relative;
             width: 100%;
@@ -83,10 +104,10 @@
         }
 
         .btn {
-            padding: 0.8rem 1.5rem;
+            padding: 0.5rem 1.2rem;
             border: none;
             border-radius: 60px; 
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -125,6 +146,7 @@
 
         .btn-listen { background: #3b82f6; color: white; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
         .btn-listen:hover { background: #2563eb; transform: scale(1.02); }
+        .btn-listen.active-stop { background: #64748b; }
 
         .btn-record { background: #e2e8f0; color: #334155; }
         .btn-record:hover { background: #cbd5e1; }
@@ -159,7 +181,6 @@
             background: #ffffff;
         }
 
-        /* عنوان قابل للتمرير والترجمة */
         .main-title {
             position: relative;
             font-size: clamp(20px, 2.8vw, 32px);
@@ -181,13 +202,12 @@
         }
         .main-title:hover::after { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(-2px); }
 
-        /* حاوية النص بمحاذاة لليمين وتقليل الفراغات */
         .reading-content {
             display: flex;
             flex-wrap: wrap;
-            justify-content: flex-start; /* محاذاة لليمين بفضل اتجاه rtl */
+            justify-content: flex-start;
             align-content: flex-start;
-            gap: 1vh 0.4vw; /* تقليل المسافات الأفقية لإزالة الفراغات الزائدة */
+            gap: 1vh 0.4vw;
             width: 100%;
             max-width: 950px;
             margin: 0 auto;
@@ -198,7 +218,8 @@
             cursor: pointer;
             padding: 0 2px;
             border-radius: 4px;
-            font-size: clamp(14px, 1.8vw, 22px); 
+            font-family: 'Calibri', sans-serif;
+            font-size: 22px;
             font-weight: bold;
             transition: background-color 0.2s, transform 0.2s;
         }
@@ -226,7 +247,7 @@
             .app-container { flex-direction: column; }
             .controls-panel { width: 100%; flex-direction: row; flex-wrap: wrap; border-right: none; border-bottom: 2px solid #e2e8f0; padding: 2vh; }
             .btn-wrapper { width: 45%; }
-            .speed-controls { width: 100%; order: -1; }
+            .speed-controls, .instructions-text, .submit-note { width: 100%; order: -1; }
             hr { display: none; }
         }
     </style>
@@ -235,6 +256,14 @@
 
     <div class="app-container">
         <aside class="controls-panel">
+            
+            <div class="instructions-text">
+                • Hover over words for translation.<br>
+                • Click any word to hear its correct pronunciation.<br>
+                • Listen at your chosen speed.<br>
+                • If audio fails, install the Arabic language on your device.
+            </div>
+
             <div class="speed-controls">
                 <button class="speed-btn" onclick="setSpeed(0.5, this)">Slow</button>
                 <button class="speed-btn active" onclick="setSpeed(0.9, this)">Normal</button>
@@ -243,7 +272,7 @@
             
             <div class="btn-wrapper">
                 <span class="tooltip">Hear the text read aloud</span>
-                <button id="btn-listen" class="btn btn-listen" onclick="startListening()">Listen 🔊</button>
+                <button id="btn-listen" class="btn btn-listen" onclick="handleListenClick()">Listen 🔊</button>
             </div>
             
             <hr>
@@ -262,193 +291,80 @@
                 <span class="tooltip">Save recording to device</span>
                 <button id="btn-submit" class="btn btn-submit" disabled onclick="downloadRecording()">Submit 📤</button>
             </div>
+
+            <div class="submit-note">
+                Clicking Submit downloads your audio file. Send it to your teacher via the Google Classroom assignment.
+            </div>
+
         </aside>
 
         <main class="text-panel">
             <h1 class="main-title" data-en="Uses of Technology">استخدامات التكنولوجيا</h1>
-            <div id="reading-text-container" class="reading-content">
-                </div>
+            <div id="reading-text-container" class="reading-content"></div>
         </main>
     </div>
 
     <script>
-        // --- 1. إعداد بيانات النص مع ترتيب الفقرات والفواصل ---
         const textData = [
-            // الفقرة الأولى
-            {ar: "نَتَّفِقُ", en: "We agree", color: "#4CAF50"},
-            {ar: "أَوْ", en: "or", color: "#4CAF50"},
-            {ar: "نَخْتَلِفُ،", en: "disagree,", color: "#4CAF50"},
-            {ar: "فَإِنَّهُ", en: "it is", color: "#4CAF50"},
-            {ar: "لَا", en: "not", color: "#4CAF50"},
-            {ar: "غِنَى", en: "dispensable", color: "#333"},
-            {ar: "عَنِ", en: "from", color: "#333"},
-            {ar: "التِّكْنُولُوجْيَا", en: "technology", color: "#333"},
-            {ar: "فِي", en: "in", color: "#333"},
-            {ar: "حَيَاتِنَا", en: "our life", color: "#333"},
-            {ar: "الْيَوْمِيَّةِ،", en: "daily,", color: "#333"},
-            {ar: "حَيْثُ", en: "where", color: "#ff0844"},
-            {ar: "يُمْكِنُنِي", en: "I can", color: "#333"},
-            {ar: "أَنْ", en: "to", color: "#333"},
-            {ar: "أَتَصَفَّحَ", en: "browse", color: "#333"},
-            {ar: "الْأَخْبَارَ", en: "the news", color: "#333"},
-            {ar: "وَ", en: "and", color: "#333"},
-            {ar: "أَتَعَرَّفَ", en: "learn", color: "#333"},
-            {ar: "عَلَى", en: "about", color: "#333"},
-            {ar: "الْأَحْدَاثِ", en: "events", color: "#333"},
-            {ar: "الْمَحَلِّيَّةِ", en: "local", color: "#333"},
-            {ar: "وَالْعَالَمِيَّةِ،", en: "and global,", color: "#333"},
-            {ar: "وَ", en: "and", color: "#ff0844"},
-            {ar: "أَيْضًا", en: "also", color: "#ff0844"},
-            {ar: "حَالَاتِ", en: "conditions", color: "#333"},
-            {ar: "الطَّقْسِ", en: "weather", color: "#333"},
-            {ar: "وَ", en: "and", color: "#333"},
-            {ar: "النَّشْرَةِ", en: "forecast", color: "#333"},
-            {ar: "الْجَوِّيَّةِ.", en: "weather.", color: "#333"},
-            {ar: "مَا", en: "What", color: "#333"},
-            {ar: "أَهَم", en: "is most important", color: "#333"},
-            {ar: "التكنولوجيا", en: "technology", color: "#333"},
-            {ar: "!", en: "!", color: "#333"},
-
-            {ar: "<br>", en: "", color: ""}, // فاصل الفقرة الأولى
-
-            // الفقرة الثانية
-            {ar: "وَفِي", en: "And in", color: "#333"},
-            {ar: "وَقْتِ", en: "time", color: "#333"},
-            {ar: "الْفَرَاغِ،", en: "free,", color: "#333"},
-            {ar: "تَكُونُ", en: "is", color: "#333"},
-            {ar: "التِّكْنُولُوجْيَا", en: "technology", color: "#333"},
-            {ar: "مَصْدَرًا", en: "a source", color: "#333"},
-            {ar: "لِلتَّرْفِيهِ", en: "for entertainment", color: "#333"},
-            {ar: "وَالتَّسْلِيَةِ.", en: "and amusement.", color: "#333"},
-            {ar: "أَقْضِي", en: "I spend", color: "#333"},
-            {ar: "الْكَثِيرَ", en: "a lot", color: "#333"},
-            {ar: "مِنَ", en: "of", color: "#333"},
-            {ar: "الْوَقْتِ", en: "time", color: "#333"},
-            {ar: "وَأَنَا", en: "while I", color: "#333"},
-            {ar: "أَتَفَاعَلُ", en: "interact", color: "#333"},
-            {ar: "مَعَ", en: "with", color: "#333"},
-            {ar: "أَصْدِقَائِي", en: "my friends", color: "#333"},
-            {ar: "عَبْرَ", en: "via", color: "#333"},
-            {ar: "مَوَاقِعِ", en: "platforms", color: "#333"},
-            {ar: "التَّوَاصُلِ", en: "communication", color: "#333"},
-            {ar: "الِاجْتِمَاعِيِّ", en: "social", color: "#333"},
-            {ar: "مِثْلَ", en: "like", color: "#ff0844"},
-            {ar: "فِيسْبُوك", en: "Facebook", color: "#333"},
-            {ar: "وَ", en: "and", color: "#333"},
-            {ar: "إِنْسِتِجْرَام", en: "Instagram", color: "#333"},
-            {ar: "وَ", en: "and", color: "#333"},
-            {ar: "سْنَاب", en: "Snap", color: "#333"},
-            {ar: "شَات،", en: "chat,", color: "#333"},
-            {ar: "حَيْثُ", en: "where", color: "#ff0844"},
-            {ar: "نُرَاسِلُ", en: "we message", color: "#333"},
-            {ar: "بَعْضَنَا،", en: "each other,", color: "#333"},
-            {ar: "وَ", en: "and", color: "#333"},
-            {ar: "نُشَارِكُ", en: "share", color: "#333"},
-            {ar: "الْمَنْشُورَاتِ", en: "posts", color: "#333"},
-            {ar: "وَ", en: "and", color: "#333"},
-            {ar: "الْفِيدْيُوهَاتِ،", en: "videos,", color: "#333"},
-            {ar: "وَ", en: "and", color: "#333"},
-            {ar: "نَتَبَادَلُ", en: "exchange", color: "#333"},
-            {ar: "الْأَخْبَارَ", en: "news", color: "#333"},
-            {ar: "وَ", en: "and", color: "#333"},
-            {ar: "الصُّوَرَ.", en: "photos.", color: "#333"},
-
-            {ar: "<br>", en: "", color: ""}, // فاصل الفقرة الثانية
-
-            // الفقرة الثالثة
-            {ar: "كَذَلِكَ،", en: "Likewise,", color: "#ff0844"},
-            {ar: "أَسْتَمْتِعُ", en: "I enjoy", color: "#333"},
-            {ar: "بِلَعِبِ", en: "playing", color: "#333"},
-            {ar: "الْأَلْعَابِ", en: "games", color: "#333"},
-            {ar: "الْإِلِكْتُرُونِيَّةِ", en: "electronic", color: "#333"},
-            {ar: "الَّتِي", en: "which", color: "#333"},
-            {ar: "تُعْطِينِي", en: "give me", color: "#333"},
-            {ar: "فُرْصَةً", en: "a chance", color: "#333"},
-            {ar: "لِلْمُتْعَةِ", en: "for fun", color: "#333"},
-            {ar: "وَ", en: "and", color: "#333"},
-            {ar: "التَّحَدِّي،", en: "challenge,", color: "#333"},
-            {ar: "وَ", en: "and", color: "#333"},
-            {ar: "فِي", en: "in", color: "#333"},
-            {ar: "نَفْسِ", en: "same", color: "#333"},
-            {ar: "الْوَقْتِ", en: "time", color: "#333"},
-            {ar: "أُطَوِّرُ", en: "I develop", color: "#333"},
-            {ar: "مَهَارَاتِ", en: "skills", color: "#333"},
-            {ar: "التَّفْكِيرِ", en: "thinking", color: "#333"},
-            {ar: "وَالتَّخْطِيطِ", en: "and planning", color: "#333"},
-            {ar: "وَحَلِّ", en: "and solving", color: "#333"},
-            {ar: "الْمَشَاكِلِ.", en: "problems.", color: "#333"},
-            {ar: "وَ", en: "And", color: "#4CAF50"},
-            {ar: "أُضِيفُ", en: "I add", color: "#4CAF50"},
-            {ar: "أَيْضًا", en: "also", color: "#4CAF50"},
-            {ar: "أَنِّي", en: "that I", color: "#333"},
-            {ar: "أَعْشَقُ", en: "adore", color: "#333"},
-            {ar: "التَّسَوُّقَ", en: "shopping", color: "#333"},
-            {ar: "عَبْرَ", en: "via", color: "#333"},
-            {ar: "الْمَتَاجِرِ", en: "stores", color: "#333"},
-            {ar: "الْإِلِكْتُرُونِيَّةِ", en: "online", color: "#333"},
-            {ar: "عَلَى", en: "on", color: "#333"},
-            {ar: "الْإِنْتِرْنِت.", en: "the internet.", color: "#333"}
+            {ar: "نَتَّفِقُ", en: "We agree", color: "#4CAF50"}, {ar: "أَوْ", en: "or", color: "#4CAF50"}, {ar: "نَخْتَلِفُ،", en: "disagree,", color: "#4CAF50"}, {ar: "فَإِنَّهُ", en: "it is", color: "#4CAF50"}, {ar: "لَا", en: "not", color: "#4CAF50"}, {ar: "غِنَى", en: "dispensable", color: "#333"}, {ar: "عَنِ", en: "from", color: "#333"}, {ar: "التِّكْنُولُوجْيَا", en: "technology", color: "#333"}, {ar: "فِي", en: "in", color: "#333"}, {ar: "حَيَاتِنَا", en: "our life", color: "#333"}, {ar: "الْيَوْمِيَّةِ،", en: "daily,", color: "#333"}, {ar: "حَيْثُ", en: "where", color: "#ff0844"}, {ar: "يُمْكِنُنِي", en: "I can", color: "#333"}, {ar: "أَنْ", en: "to", color: "#333"}, {ar: "أَتَصَفَّحَ", en: "browse", color: "#333"}, {ar: "الْأَخْبَارَ", en: "the news", color: "#333"}, {ar: "وَ", en: "and", color: "#333"}, {ar: "أَتَعَرَّفَ", en: "learn", color: "#333"}, {ar: "عَلَى", en: "about", color: "#333"}, {ar: "الْأَحْدَاثِ", en: "events", color: "#333"}, {ar: "الْمَحَلِّيَّةِ", en: "local", color: "#333"}, {ar: "وَالْعَالَمِيَّةِ،", en: "and global,", color: "#333"}, {ar: "وَ", en: "and", color: "#ff0844"}, {ar: "أَيْضًا", en: "also", color: "#ff0844"}, {ar: "حَالَاتِ", en: "conditions", color: "#333"}, {ar: "الطَّقْسِ", en: "weather", color: "#333"}, {ar: "وَ", en: "and", color: "#333"}, {ar: "النَّشْرَةِ", en: "forecast", color: "#333"}, {ar: "الْجَوِّيَّةِ.", en: "weather.", color: "#333"}, {ar: "مَا", en: "What", color: "#333"}, {ar: "أَهَم", en: "is most important", color: "#333"}, {ar: "التكنولوجيا", en: "technology", color: "#333"}, {ar: "!", en: "!", color: "#333"},
+            {ar: "<br>", en: "", color: ""},
+            {ar: "وَفِي", en: "And in", color: "#333"}, {ar: "وَقْتِ", en: "time", color: "#333"}, {ar: "الْفَرَاغِ،", en: "free,", color: "#333"}, {ar: "تَكُونُ", en: "is", color: "#333"}, {ar: "التِّكْنُولُوجْيَا", en: "technology", color: "#333"}, {ar: "مَصْدَرًا", en: "a source", color: "#333"}, {ar: "لِلتَّرْفِيهِ", en: "for entertainment", color: "#333"}, {ar: "وَالتَّسْلِيَةِ.", en: "and amusement.", color: "#333"}, {ar: "أَقْضِي", en: "I spend", color: "#333"}, {ar: "الْكَثِيرَ", en: "a lot", color: "#333"}, {ar: "مِنَ", en: "of", color: "#333"}, {ar: "الْوَقْتِ", en: "time", color: "#333"}, {ar: "وَأَنَا", en: "while I", color: "#333"}, {ar: "أَتَفَاعَلُ", en: "interact", color: "#333"}, {ar: "مَعَ", en: "with", color: "#333"}, {ar: "أَصْدِقَائِي", en: "my friends", color: "#333"}, {ar: "عَبْرَ", en: "via", color: "#333"}, {ar: "مَوَاقِعِ", en: "platforms", color: "#333"}, {ar: "التَّوَاصُلِ", en: "communication", color: "#333"}, {ar: "الِاجْتِمَاعِيِّ", en: "social", color: "#333"}, {ar: "مِثْلَ", en: "like", color: "#ff0844"}, {ar: "فِيسْبُوك", en: "Facebook", color: "#333"}, {ar: "وَ", en: "and", color: "#333"}, {ar: "إِنْسِتِجْرَام", en: "Instagram", color: "#333"}, {ar: "وَ", en: "and", color: "#333"}, {ar: "سْنَاب", en: "Snap", color: "#333"}, {ar: "شَات،", en: "chat,", color: "#333"}, {ar: "حَيْثُ", en: "where", color: "#ff0844"}, {ar: "نُرَاسِلُ", en: "we message", color: "#333"}, {ar: "بَعْضَنَا،", en: "each other,", color: "#333"}, {ar: "وَ", en: "and", color: "#333"}, {ar: "نُشَارِكُ", en: "share", color: "#333"}, {ar: "الْمَنْشُورَاتِ", en: "posts", color: "#333"}, {ar: "وَ", en: "and", color: "#333"}, {ar: "الْفِيدْيُوهَاتِ،", en: "videos,", color: "#333"}, {ar: "وَ", en: "and", color: "#333"}, {ar: "نَتَبَادَلُ", en: "exchange", color: "#333"}, {ar: "الْأَخْبَارَ", en: "news", color: "#333"}, {ar: "وَ", en: "and", color: "#333"}, {ar: "الصُّوَرَ.", en: "photos.", color: "#333"},
+            {ar: "<br>", en: "", color: ""},
+            {ar: "كَذَلِكَ،", en: "Likewise,", color: "#ff0844"}, {ar: "أَسْتَمْتِعُ", en: "I enjoy", color: "#333"}, {ar: "بِلَعِبِ", en: "playing", color: "#333"}, {ar: "الْأَلْعَابِ", en: "games", color: "#333"}, {ar: "الْإِلِكْتُرُونِيَّةِ", en: "electronic", color: "#333"}, {ar: "الَّتِي", en: "which", color: "#333"}, {ar: "تُعْطِينِي", en: "give me", color: "#333"}, {ar: "فُرْصَةً", en: "a chance", color: "#333"}, {ar: "لِلْمُتْعَةِ", en: "for fun", color: "#333"}, {ar: "وَ", en: "and", color: "#333"}, {ar: "التَّحَدِّي،", en: "challenge,", color: "#333"}, {ar: "وَ", en: "and", color: "#333"}, {ar: "فِي", en: "in", color: "#333"}, {ar: "نَفْسِ", en: "same", color: "#333"}, {ar: "الْوَقْتِ", en: "time", color: "#333"}, {ar: "أُطَوِّرُ", en: "I develop", color: "#333"}, {ar: "مَهَارَاتِ", en: "skills", color: "#333"}, {ar: "التَّفْكِيرِ", en: "thinking", color: "#333"}, {ar: "وَالتَّخْطِيطِ", en: "and planning", color: "#333"}, {ar: "وَحَلِّ", en: "and solving", color: "#333"}, {ar: "الْمَشَاكِلِ.", en: "problems.", color: "#333"}, {ar: "وَ", en: "And", color: "#4CAF50"}, {ar: "أُضِيفُ", en: "I add", color: "#4CAF50"}, {ar: "أَيْضًا", en: "also", color: "#4CAF50"}, {ar: "أَنِّي", en: "that I", color: "#333"}, {ar: "أَعْشَقُ", en: "adore", color: "#333"}, {ar: "التَّسَوُّقَ", en: "shopping", color: "#333"}, {ar: "عَبْرَ", en: "via", color: "#333"}, {ar: "الْمَتَاجِرِ", en: "stores", color: "#333"}, {ar: "الْإِلِكْتُرُونِيَّةِ", en: "online", color: "#333"}, {ar: "عَلَى", en: "on", color: "#333"}, {ar: "الْإِنْتِرْنِت.", en: "the internet.", color: "#333"}
         ];
 
         const container = document.getElementById('reading-text-container');
-        let htmlContent = '';
         let currentIndex = 0;
         let speakTextArray = [];
 
         textData.forEach((item, index) => {
             if (item.ar === '<br>') {
-                // إضافة فاصل سطر عمودي دون الإخلال بالمحاذاة
-                htmlContent += `<div class="line-break" style="flex-basis: 100%; height: 1.5vh;"></div>`;
+                container.innerHTML += `<div style="flex-basis: 100%; height: 1.5vh;"></div>`;
             } else {
                 item.startIndex = currentIndex;
                 item.endIndex = currentIndex + item.ar.length;
                 currentIndex += item.ar.length + 1; 
                 speakTextArray.push(item.ar);
-                
-                // إضافة دالة speakWord للنقر على الكلمة المفردة
-                htmlContent += `<span id="word-${index}" class="word" data-en="${item.en}" style="color: ${item.color};" onclick="speakWord('${item.ar.replace(/[،.!]/g, '')}')">${item.ar}</span>`;
+                container.innerHTML += `<span id="word-${index}" class="word" data-en="${item.en}" style="color: ${item.color};" onclick="speakWord('${item.ar.replace(/[،.!]/g, '')}')">${item.ar}</span>`;
             }
         });
         
-        container.innerHTML = htmlContent;
         const fullTextToSpeak = speakTextArray.join(' ');
-
-        // --- 2. إعدادات القراءة الآلية ---
         let currentSpeed = 0.9;
-        
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-        }
+        const btnListen = document.getElementById('btn-listen');
 
         function setSpeed(speed, btnElement) {
             currentSpeed = speed;
             document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
             btnElement.classList.add('active');
             if(window.speechSynthesis.speaking) {
-                window.speechSynthesis.cancel();
+                stopListening();
                 startListening();
             }
         }
 
-        // دالة نطق كلمة واحدة عند النقر عليها
         function speakWord(wordText) {
             if (!('speechSynthesis' in window)) return;
-            window.speechSynthesis.cancel(); 
-            
+            stopListening(); 
             const utterance = new SpeechSynthesisUtterance(wordText);
             utterance.lang = 'ar-SA';
             utterance.rate = currentSpeed; 
-            
             const voices = window.speechSynthesis.getVoices();
             const arabicVoice = voices.find(v => v.lang.includes('ar'));
             if (arabicVoice) utterance.voice = arabicVoice;
-
             window.speechSynthesis.speak(utterance);
         }
 
+        function handleListenClick() {
+            if (window.speechSynthesis.speaking) {
+                stopListening();
+            } else {
+                startListening();
+            }
+        }
+
         function startListening() {
-            if (!('speechSynthesis' in window)) return alert('متصفحك لا يدعم القراءة الآلية.');
-            
+            if (!('speechSynthesis' in window)) return alert('Browser not supported.');
             window.speechSynthesis.cancel(); 
             
             const utterance = new SpeechSynthesisUtterance(fullTextToSpeak);
@@ -459,11 +375,15 @@
             const arabicVoice = voices.find(v => v.lang.includes('ar'));
             if (arabicVoice) utterance.voice = arabicVoice;
             
+            utterance.onstart = () => {
+                btnListen.innerHTML = 'Stop ⏹️';
+                btnListen.classList.add('active-stop');
+            };
+
             utterance.onboundary = (event) => {
                 if (event.name === 'word') {
                     const charIndex = event.charIndex;
                     const wordObjIndex = textData.findIndex(w => w.ar !== '<br>' && w.startIndex <= charIndex && w.endIndex >= charIndex);
-                    
                     if (wordObjIndex !== -1) {
                         document.querySelectorAll('.word').forEach(el => el.classList.remove('highlight'));
                         const currentWordEl = document.getElementById('word-' + wordObjIndex);
@@ -472,15 +392,26 @@
                 }
             };
 
-            utterance.onend = () => document.querySelectorAll('.word').forEach(el => el.classList.remove('highlight'));
-            utterance.onerror = () => document.querySelectorAll('.word').forEach(el => el.classList.remove('highlight'));
-            
-            setTimeout(() => {
-                window.speechSynthesis.speak(utterance);
-            }, 50);
+            utterance.onend = () => {
+                resetListenBtn();
+                document.querySelectorAll('.word').forEach(el => el.classList.remove('highlight'));
+            };
+
+            window.speechSynthesis.speak(utterance);
         }
 
-        // --- 3. إعدادات التسجيل والاستماع ---
+        function stopListening() {
+            window.speechSynthesis.cancel();
+            resetListenBtn();
+            document.querySelectorAll('.word').forEach(el => el.classList.remove('highlight'));
+        }
+
+        function resetListenBtn() {
+            btnListen.innerHTML = 'Listen 🔊';
+            btnListen.classList.remove('active-stop');
+        }
+
+        // --- التسجيل ---
         let mediaRecorder;
         let audioChunks = [];
         let audioUrl = null;
@@ -492,39 +423,29 @@
         const btnSubmit = document.getElementById('btn-submit');
 
         async function toggleRecording() {
+            // إيقاف القراءة الآلية فوراً عند الضغط على ريكورد
+            stopListening();
+
             if (!isRecording) {
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                     mediaRecorder = new MediaRecorder(stream);
                     audioChunks = [];
-
-                    mediaRecorder.ondataavailable = event => {
-                        if (event.data.size > 0) audioChunks.push(event.data);
-                    };
-
+                    mediaRecorder.ondataavailable = event => { if (event.data.size > 0) audioChunks.push(event.data); };
                     mediaRecorder.onstop = () => {
                         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                         audioUrl = URL.createObjectURL(audioBlob);
                         studentAudio.src = audioUrl;
-                        
                         btnPlayMine.classList.add('show');
                         btnSubmit.disabled = false;
                         btnSubmit.classList.add('ready');
                     };
-
                     mediaRecorder.start();
                     isRecording = true;
                     btnRecord.innerHTML = 'Stop ⏹️';
                     btnRecord.classList.add('recording');
-                    btnPlayMine.classList.remove('show'); 
-                    
-                    window.speechSynthesis.cancel();
-                    document.querySelectorAll('.word').forEach(el => el.classList.remove('highlight'));
                     studentAudio.pause(); 
-
-                } catch (err) {
-                    alert("Please allow microphone access to record your reading.");
-                }
+                } catch (err) { alert("Microphone access denied."); }
             } else {
                 mediaRecorder.stop();
                 isRecording = false;
@@ -536,28 +457,22 @@
 
         function playMyRecording() {
             if (studentAudio.paused) {
+                stopListening();
                 studentAudio.play();
                 btnPlayMine.innerHTML = 'Pause ⏸️';
-                window.speechSynthesis.cancel(); 
             } else {
                 studentAudio.pause();
                 btnPlayMine.innerHTML = 'Play 🎧';
             }
         }
 
-        studentAudio.onended = () => {
-            btnPlayMine.innerHTML = 'Play 🎧';
-        };
-
+        studentAudio.onended = () => { btnPlayMine.innerHTML = 'Play 🎧'; };
         function downloadRecording() {
             if (audioUrl) {
                 const a = document.createElement('a');
-                a.style.display = 'none';
                 a.href = audioUrl;
-                a.download = 'Reading_Activity.webm'; 
-                document.body.appendChild(a);
+                a.download = 'Reading_Activity.webm';
                 a.click();
-                document.body.removeChild(a);
             }
         }
     </script>
