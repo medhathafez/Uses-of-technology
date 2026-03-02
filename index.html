@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>استخدامات التكنولوجيا</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dubai:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Dubai', sans-serif; }
+        body, html { height: 100%; overflow: hidden; background-color: #f0f4f8; }
+        
+        .container { display: flex; flex-direction: column; height: 100vh; }
+
+        nav {
+            position: relative;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            padding: 10px 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            z-index: 100;
+        }
+
+        .bg-icon {
+            position: absolute;
+            font-size: 24px;
+            opacity: 0.15;
+            pointer-events: none;
+            animation: float 4s ease-in-out infinite;
+        }
+        .bg-icon:nth-child(1) { top: 10px; right: 10%; animation-delay: 0s; }
+        .bg-icon:nth-child(2) { bottom: 5px; right: 25%; animation-delay: 1s; font-size: 30px; }
+        .bg-icon:nth-child(3) { top: 15px; left: 20%; animation-delay: 2s; }
+        .bg-icon:nth-child(4) { bottom: 10px; left: 35%; animation-delay: 0.5s; font-size: 20px; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .logo {
+            position: absolute;
+            left: 15px;
+            top: 35%;
+            transform: translateY(-50%);
+            height: 60px;
+            mix-blend-mode: screen; 
+            z-index: 10;
+        }
+
+        .title-container {
+            display: grid;
+            place-items: center;
+            font-size: 26px;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 10px;
+            cursor: pointer;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            z-index: 5;
+        }
+        
+        .title-container .ar, .title-container .en {
+            grid-area: 1 / 1;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        
+        .title-container .en {
+            opacity: 0;
+            color: #00E5FF; 
+            transform: translateY(10px);
+            font-size: 22px;
+            letter-spacing: 1px;
+        }
+
+        .title-container:hover .ar { opacity: 0; transform: translateY(-10px); }
+        .title-container:hover .en { opacity: 1; transform: translateY(0); }
+
+        .tabs-wrapper {
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            z-index: 5;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            backdrop-filter: blur(5px);
+            overflow: hidden;
+            padding: 0 2px;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: #ffffff;
+            color: #302b63;
+            border-color: #00E5FF;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+        }
+
+        .tab-btn:hover:not(.active) { background: rgba(255, 255, 255, 0.25); transform: translateY(-2px); }
+
+        .tab-btn .ar, .tab-btn .en {
+            grid-area: 1 / 1;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tab-btn .en { opacity: 0; transform: scale(0.8); font-size: 12px; }
+        .tab-btn:hover .ar { opacity: 0; transform: scale(1.1); }
+        .tab-btn:hover .en { opacity: 1; transform: scale(1); color: #00E5FF; }
+        .tab-btn.active:hover .en { color: #302b63; }
+
+        iframe {
+            flex-grow: 1;
+            border: none;
+            width: 100%;
+            height: 100%;
+            background-color: #f0f4f8;
+        }
+
+        @media (max-width: 900px) {
+            .tab-btn { font-size: 12px; }
+            .tab-btn .en { font-size: 10px; }
+            .title-container { font-size: 22px; }
+            .title-container .en { font-size: 18px; }
+            .logo { height: 50px; }
+        }
+
+        @media (max-width: 600px) {
+            .logo { position: relative; left: 0; top: 0; transform: none; margin-bottom: 5px; height: 40px; }
+            .bg-icon { display: none; }
+            .title-container { font-size: 18px; margin-bottom: 6px; }
+            .title-container .en { font-size: 16px; }
+            .tabs-wrapper { gap: 2px; }
+            .tab-btn { height: 32px; font-size: 9px; border-radius: 4px; padding: 0 1px; }
+            .tab-btn .en { font-size: 8px; }
+            nav { padding: 8px 5px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <nav>
+        <img src="image.jpg" alt="Logo" class="logo">
+        
+        <div class="bg-icon">💻</div>
+        <div class="bg-icon">🌐</div>
+        <div class="bg-icon">🚀</div>
+        <div class="bg-icon">🤖</div>
+
+        <div class="title-container">
+            <span class="ar">استخدامات التِّكنُولوجْيا</span>
+            <span class="en">Uses of Technology</span>
+        </div>
+
+        <div class="tabs-wrapper">
+            <button class="tab-btn active" onclick="loadPage(this, 'home.html')">
+                <span class="ar">الرئيسية</span>
+                <span class="en">Home</span>
+            </button>
+            <button class="tab-btn" onclick="loadPage(this, 'grammar.html')">
+                <span class="ar">القواعد</span>
+                <span class="en">Grammar</span>
+            </button>
+            <button class="tab-btn" onclick="loadPage(this, 'vocabulary.html')">
+                <span class="ar">المفردات</span>
+                <span class="en">Vocabulary</span>
+            </button>
+            <button class="tab-btn" onclick="loadPage(this, 'structures.html')">
+                <span class="ar">تراكيب جديدة</span>
+                <span class="en">Structures</span>
+            </button>
+            <button class="tab-btn" onclick="loadPage(this, 'reading.html')">
+                <span class="ar">القراءة</span>
+                <span class="en">Reading</span>
+            </button>
+            <button class="tab-btn" onclick="loadPage(this, 'extraction.html')">
+                <span class="ar">الاستخراج</span>
+                <span class="en">Extraction</span>
+            </button>
+            <button class="tab-btn" onclick="loadPage(this, 'comprehension.html')">
+                <span class="ar">فهم المقروء</span>
+                <span class="en">Comprehension</span>
+            </button>
+            <button class="tab-btn" onclick="loadPage(this, 'speaking.html')">
+                <span class="ar">تحدث</span>
+                <span class="en">Speaking</span>
+            </button>
+            <button class="tab-btn" onclick="loadPage(this, 'reading-quiz.html')">
+                <span class="ar">اختبار قراءة</span>
+                <span class="en">Reading Test</span>
+            </button>
+            <button class="tab-btn" onclick="loadPage(this, 'listening-quiz.html')">
+                <span class="ar">اختبار استماع</span>
+                <span class="en">Listening Test</span>
+            </button>
+        </div>
+    </nav>
+
+    <iframe id="contentFrame" src="home.html"></iframe>
+</div>
+
+<script>
+    function loadPage(btn, url) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('contentFrame').src = url;
+    }
+</script>
+
+</body>
+</html>
