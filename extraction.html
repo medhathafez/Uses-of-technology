@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google" content="notranslate">
     <title>استخرج من النص - التكنولوجيا</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -235,10 +235,9 @@
             { id: 'c6', label: 'ضد (نَتَّفِقُ)', en: 'Antonym', color: '#ef4444' },
             { id: 'c7', label: 'جمع (مَوْقِع)', en: 'Plural', color: '#ec4899' },
             { id: 'c8', label: 'مفرد (التَّحَدِّيَات)', en: 'Singular', color: '#14b8a6' },
-            { id: 'c9', label: 'أسلوب تَعَجُّب', en: 'Exclamatory Style', color: '#8b5cf6' }
+            { id: 'c9', label: 'أسلوب تَعَجُّب', en: 'Exclamatory Style', color: '#8b5cf6' }
         ];
 
-        // تم تحديث الإجابة لتكون الجملة كاملة
         const rawAnswers = {
             'c1': ['حالات', 'المنشورات', 'الفيديوهات', 'مهارات'],
             'c2': ['الاخبار', 'الاحداث', 'اصدقائي', 'مواقع', 'الصور', 'الالعاب', 'المشاكل', 'المتاجر'],
@@ -268,10 +267,8 @@
 
         const textContainer = document.getElementById('text-container');
         
-        // استبدال مؤقت لجملة التعجب لمنع تقسيمها
         let processedText = rawText.replace('ما أهم التكنولوجيا !', 'EXACT_PHRASE_MARKER');
         processedText = processedText.replace(/([\u0600-\u06FF]+)/g, '<span class="word">$1</span>');
-        // إعادة جملة التعجب ككتلة واحدة (span واحد)
         processedText = processedText.replace('EXACT_PHRASE_MARKER', '<span class="word">ما أهم التكنولوجيا !</span>');
         
         textContainer.innerHTML = processedText;

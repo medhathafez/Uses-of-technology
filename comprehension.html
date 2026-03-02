@@ -1,94 +1,483 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" translate="no">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>شريط قريباً المتحرك</title>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&display=swap" rel="stylesheet">
+    <meta name="google" content="notranslate">
+    <title>نشاط القراءة والفهم - التكنولوجيا</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background-color: #2b2b4a; /* لون خلفية داكن لإبراز الشريط الأصفر */
-            height: 100vh;
-            display: flex;
-            align-items: center; /* توسيط الشريط في منتصف الشاشة عمودياً */
-            overflow: hidden; /* إخفاء أي أشرطة تمرير */
+            font-family: 'Noto Naskh Arabic', serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            padding: 20px;
         }
 
-        /* تنسيق الشريط الأصفر */
-        .yellow-bar {
-            width: 100%;
-            height: 120px;
-            background-color: #ffd700; /* أصفر فاقع */
-            position: relative;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        /* شاشة الترحيب */
+        .welcome-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(255, 255, 255, 0.98);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            direction: ltr;
+        }
+
+        .welcome-box {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            font-family: sans-serif;
+        }
+
+        .welcome-box h2 { color: #2563eb; margin-bottom: 15px; }
+        .welcome-box p { color: #6b7280; margin-bottom: 20px; font-size: 14px; }
+        
+        .welcome-box input {
+            width: 100%; padding: 12px; border: 2px solid #e5e7eb;
+            border-radius: 8px; font-size: 16px; margin-bottom: 20px;
+            outline: none; text-align: center;
+        }
+        .welcome-box input:focus { border-color: #2563eb; }
+
+        .start-btn {
+            background-color: #2563eb; color: white; border: none;
+            padding: 12px 30px; border-radius: 8px; font-size: 18px;
+            font-weight: bold; cursor: pointer; width: 100%;
+        }
+        .start-btn:disabled { background-color: #9ca3af; cursor: not-allowed; }
+
+        /* منطقة المحتوى الرئيسي */
+        #main-content { display: none; max-width: 800px; margin: 0 auto; }
+        
+        /* المنطقة التي سيتم تصويرها */
+        #capture-area {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .student-badge {
+            background-color: #eff6ff;
+            color: #1e3a8a;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-family: sans-serif;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+            direction: ltr;
+        }
+
+        /* نص القراءة */
+        .reading-text {
+            font-size: 18px;
+            line-height: 2.2;
+            background-color: #fffbeb;
+            padding: 20px;
+            border-radius: 10px;
+            border-right: 5px solid #f59e0b;
+            margin-bottom: 30px;
+            text-align: justify;
+            font-weight: bold;
+        }
+
+        /* الأسئلة */
+        .question-card {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .question-title {
+            font-size: 18px; 
+            font-weight: 900; 
+            margin-bottom: 15px; 
+            color: #111827;
             display: flex;
             align-items: center;
-            overflow: hidden; /* لمنع النص من الظهور خارج الشريط */
         }
 
-        /* الحاوية المتحركة للنص */
-        .moving-text-container {
+        /* أيقونة الترجمة والـ Tooltip */
+        .hover-translate-container {
+            position: relative;
+            display: inline-block;
+            margin-left: 10px;
+            cursor: help;
+        }
+        .hover-translate-container .icon {
+            font-size: 20px;
+            color: #3b82f6;
+            background: #eff6ff;
+            border-radius: 50%;
+            padding: 2px;
+        }
+        .hover-translate-container .tooltip-text {
+            visibility: hidden;
+            background-color: #1f2937;
+            color: #fff;
+            text-align: center;
+            padding: 8px 12px;
+            border-radius: 6px;
             position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
+            z-index: 10;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%);
             white-space: nowrap;
-            /* سرعة مرور الكلمة من اليسار لليمين (8 ثوانٍ) */
-            animation: scrollLeftToRight 8s linear infinite;
+            font-size: 15px;
+            font-family: sans-serif;
+            font-weight: normal;
+            opacity: 0;
+            transition: opacity 0.3s;
+            direction: ltr;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-
-        /* تنسيق الكلمات */
-        .text-ar, .text-en {
+        .hover-translate-container .tooltip-text::after {
+            content: "";
             position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            font-family: 'Amiri', serif;
-            font-size: 64px;
-            font-weight: 700; /* بونط عريض */
-            color: #000000;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #1f2937 transparent transparent transparent;
+        }
+        .hover-translate-container:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
         }
 
-        /* أنيميشن الوميض والتبديل للكلمة العربية */
-        .text-ar {
-            animation: blinkSwapAr 4s infinite;
+        .option-label {
+            display: block; padding: 12px 15px; margin-bottom: 10px;
+            background-color: #ffffff; border: 2px solid #d1d5db;
+            border-radius: 8px; cursor: pointer; transition: all 0.2s;
+            font-size: 16px; font-weight: 700; line-height: 1.6;
         }
+        
+        .option-label:hover { border-color: #9ca3af; background-color: #f3f4f6; }
+        input[type="radio"] { margin-left: 10px; transform: scale(1.2); }
+        input[type="radio"]:checked + span { color: #2563eb; }
+        .option-label.selected { border-color: #2563eb; background-color: #eff6ff; }
 
-        /* أنيميشن الوميض والتبديل للكلمة الإنجليزية */
-        .text-en {
-            animation: blinkSwapEn 4s infinite;
+        .option-label.correct { border-color: #10b981; background-color: #ecfdf5; color: #065f46; }
+        .option-label.wrong { border-color: #ef4444; background-color: #fef2f2; color: #991b1b; }
+
+        .submit-btn {
+            background-color: #10b981; color: white; border: none;
+            padding: 15px 40px; border-radius: 50px; font-size: 20px;
+            font-weight: bold; cursor: pointer; display: block;
+            margin: 0 auto; width: 100%; max-width: 300px;
+            font-family: 'Noto Naskh Arabic', serif;
         }
+        .submit-btn:hover { background-color: #059669; }
 
-        /* 1. حركة المرور من اليسار إلى اليمين */
-        @keyframes scrollLeftToRight {
-            0% { left: -250px; } /* تبدأ من خارج الشاشة يساراً */
-            100% { left: 100vw; } /* تنتهي خارج الشاشة يميناً */
+        #result-box {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #1e40af;
+            color: white;
+            font-family: sans-serif;
+            font-size: 24px;
+            font-weight: bold;
+            direction: ltr;
         }
-
-        /* 2. الوميض للكلمة العربية (تظهر ثم تختفي) */
-        @keyframes blinkSwapAr {
-            0%, 40% { opacity: 1; }  /* ظاهرة */
-            45%, 100% { opacity: 0; } /* وميض (اختفاء) */
-        }
-
-        /* 3. الوميض للكلمة الإنجليزية (تختفي ثم تظهر) */
-        @keyframes blinkSwapEn {
-            0%, 45% { opacity: 0; }   /* مخفية أثناء ظهور العربية */
-            50%, 90% { opacity: 1; }  /* ظاهرة */
-            95%, 100% { opacity: 0; } /* وميض (اختفاء) */
-        }
-
     </style>
 </head>
 <body>
 
-    <div class="yellow-bar">
-        <div class="moving-text-container">
-            <span class="text-ar">قريبًا</span>
-            <span class="text-en">Soon</span>
+    <div id="welcome-screen" class="welcome-screen">
+        <div class="welcome-box">
+            <h2>Reading Comprehension</h2>
+            <p>Please enter your name in English to start</p>
+            <input type="text" id="student-name" placeholder="Student Name (English)" pattern="[A-Za-z\s]+">
+            <button id="start-btn" class="start-btn" disabled>Start Activity</button>
         </div>
     </div>
 
+    <div id="main-content">
+        <div id="capture-area">
+            <div id="display-name" class="student-badge"></div>
+            
+            <div style="text-align: center; margin-bottom: 20px;">
+                <span class="hover-translate-container" style="font-size: 24px; font-weight: 900; color: #1e3a8a; cursor: help;">
+                    اقرأ النّص بتركيز، ثم أجب عن الأسئلة التالية.
+                    <span class="tooltip-text">Read the text carefully, then answer the following questions.</span>
+                </span>
+            </div>
+            
+            <div class="reading-text">
+                نَتَّفِقُ أَوْ نَخْتَلِفُ، فَإِنَّهُ لَا غِنَى عَنِ التِّكْنُولُوجْيَا فِي حَيَاتِنَا الْيَوْمِيَّةِ ، حَيْثُ يُمْكِنُنِي أَنْ أَتَصَفَّحَ الْأَخْبَارَ وَ أَتَعَرَّفَ عَلَى الْأَحْدَاثِ الْمَحَلِّيَّةِ وَالْعَالَمِيَّةِ ، وَ أَيْضًا حَالَاتِ الطَّقْسِ وَ النَّشْرَةِ الْجَوِّيَّةِ. ما أهم التكنولوجيا !<br><br>
+                وَفِي وَقْتِ الْفَرَاغِ، تَكُونُ التِّكْنُولُوجْيَا مَصْدَرًا لِلتَّرْفِيهِ وَالتَّسْلِيَةِ. أَقْضِي الْكَثِيرَ مِنَ الْوَقْتِ وَأَنَا أَتَفَاعَلُ مَعَ أَصْدِقَائِي عَبْرَ مَوَاقِعِ التَّوَاصُلِ الِاجْتِمَاعِيِّ مِثْلَ فِيسْبُوك وَ إِنْسْتَجْرَام وَ سْنَابْ شَات، حَيْثُ نُرَاسِلُ بَعْضَنَا، وَ نُشَارِكُ الْمَنشُورَاتِ وَ الْفِيدْيُوهَاتِ، وَ نَتَبَادَلُ الْأَخْبَارَ وَ الصُّوَرَ.<br><br>
+                كَذَلِكَ، أَسْتَمْتِعُ بِلَعِبِ الْأَلْعَابِ الإِلِكْتْرُونِيَّةِ الَّتِي تُعْطِينِي فُرْصَةً لِلْمُتْعَةِ وَ التَّحَدِّي، وَ فِي نَفْسِ الْوَقْتِ أُطَوِّرُ مَهَارَاتِ التَّفْكِيرِ وَالتَّخْطِيطِ وَحَلِّ الْمَشَاكِلِ. وَ أُضِيفُ أَيْضًا أَنِّي أَعْشَقُ التَّسَوُّقَ عَبْرَ الْمَتَاجِرِ الإِلِكْتْرُونِيَّةِ عَلَى الإِنْتِرْنِت.
+            </div>
+
+            <div id="quiz-container"></div>
+            
+            <div id="result-box"></div>
+        </div>
+
+        <button id="submit-btn" class="submit-btn">إرسال الإجابات (Submit)</button>
+    </div>
+
+    <script>
+        // 1. قاعدة بيانات الأسئلة المحدثة لموضوع التكنولوجيا (6 أسئلة)
+        const questionsData = [
+            {
+                question: "مَا بَعْضُ اسْتِخْدَامَاتِ الإِنْتِرْنِت فِي حَيَاتِنَا الْيَوْمِيَّةِ حَسَبَ النَّصِّ؟",
+                enTranslation: "What are some uses of the internet in our daily lives according to the text?",
+                options: [
+                    { text: "تَصَفُّحُ الأَخْبَارِ وَمَعْرِفَةُ حَالَةِ الطَّقْسِ.", correct: true },
+                    { text: "السَّفَرُ إِلَى دُوَلٍ أُخْرَى بِسُهُولَةٍ.", correct: false },
+                    { text: "اللَّعِبُ فِي الشَّارِعِ مَعَ الأَصْدِقَاءِ.", correct: false },
+                    { text: "قِرَاءَةُ الكُتُبِ الوَرَقِيَّةِ فَقَطْ.", correct: false }
+                ]
+            },
+            {
+                question: "دَلِّلْ: أَصْبَحَتِ التِّكْنُولُوجيَا وَسِيلَةً لِلتَّسْلِيَةِ وَالتَّرْفِيهِ.",
+                enTranslation: "Provide evidence: Technology has become a means of entertainment.",
+                options: [
+                    { text: "لِأَنَّنَا نَتَفَاعَلُ مَعَ الأَصْدِقَاءِ وَنَلْعَبُ الأَلْعَابَ الإِلِكْتْرُونِيَّةَ.", correct: true },
+                    { text: "لِأَنَّنَا نَدْرُسُ فِي المَدْرَسَةِ كُلَّ يَوْمٍ بِاسْتِخْدَامِهَا.", correct: false },
+                    { text: "لِأَنَّنَا نَنَامُ مُبَكِّرًا بَعْدَ اسْتِخْدَامِهَا.", correct: false },
+                    { text: "لِأَنَّهَا تُسَاعِدُ فِي تَنْظِيفِ المَنْزِلِ بِسُرْعَةٍ.", correct: false }
+                ]
+            },
+            {
+                question: "كَيْفَ تُسَاعِدُ مَوَاقِعُ التَّوَاصُلِ الِاجْتِمَاعِيِّ فِي تَقْوِيَةِ العَلَاقَاتِ بَيْنَ الأَصْدِقَاءِ؟",
+                enTranslation: "How do social media sites help strengthen relationships between friends?",
+                options: [
+                    { text: "مِنْ خِلَالِ المُراسَلَةِ وَمُشَارَكَةِ الصُّوَرِ وَالفِيدْيُوهَاتِ.", correct: true },
+                    { text: "مِنْ خِلَالِ شِرَاءِ المَلَابِسِ الجَدِيدَةِ.", correct: false },
+                    { text: "مِنْ خِلَالِ اللَّعِبِ بِمُفْرَدِنَا طَوَالَ اليَوْمِ.", correct: false },
+                    { text: "هِيَ لَا تُسَاعِدُ فِي تَقْوِيَةِ العَلَاقَاتِ أَبَدًا.", correct: false }
+                ]
+            },
+            {
+                question: "مَا هِيَ فَائِدَةُ الأَلْعَابِ الإِلِكْتْرُونِيَّةِ كَمَا ذَكَرَ الكَاتِبُ فِي النَّصِّ؟",
+                enTranslation: "What is the benefit of electronic games as mentioned by the writer in the text?",
+                options: [
+                    { text: "تُطَوِّرُ مَهَارَاتِ التَّفْكِيرِ وَالتَّخْطِيطِ وَحَلِّ المَشَاكِلِ.", correct: true },
+                    { text: "تَجْعَلُنَا نَشْعُرُ بِالمَلَلِ وَالتَّعَبِ الشَّدِيدِ.", correct: false },
+                    { text: "تُسَاعِدُنَا فِي طَبْخِ الطَّعَامِ اللَّذِيذِ.", correct: false },
+                    { text: "لَيْسَ لَهَا أَيُّ فَائِدَةٍ أَبَدًا لِلأَطْفَالِ.", correct: false }
+                ]
+            },
+            {
+                question: "مَا مَعْنَى كَلِمَةِ 'أَعْشَقُ' فِي جُمْلَةِ 'أَعْشَقُ التَّسَوُّقَ'؟",
+                enTranslation: "What is the meaning of the word 'أعشق' (I adore) in the sentence 'I adore shopping'?",
+                options: [
+                    { text: "أُحِبُّ كَثِيرًا.", correct: true },
+                    { text: "أَكْرَهُ جِدًّا.", correct: false },
+                    { text: "أَنْسَى دَائِمًا.", correct: false },
+                    { text: "أَسْتَطِيعُ أَنْ أَفْعَلَ.", correct: false }
+                ]
+            },
+            {
+                question: "أَيٌّ مِنْ هَذِهِ التَّطْبِيقَاتِ ذُكِرَ فِي النَّصِّ كَمِثَالٍ لِمَوَاقِعِ التَّوَاصُلِ الِاجْتِمَاعِيِّ؟",
+                enTranslation: "Which of these apps was mentioned in the text as an example of social media?",
+                options: [
+                    { text: "فِيسْبُوك وَ إِنْسْتَجْرَام.", correct: true },
+                    { text: "يُوتْيُوب وَتِيك تُوك.", correct: false },
+                    { text: "وَاتْس آب وَتِلِيجرام.", correct: false },
+                    { text: "أَمَازُون وَنُون.", correct: false }
+                ]
+            }
+        ];
+
+        let studentName = "";
+
+        // 2. دالة لخلط المصفوفات (الأسئلة والإجابات)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // 3. شاشة البداية
+        const nameInput = document.getElementById('student-name');
+        const startBtn = document.getElementById('start-btn');
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const mainContent = document.getElementById('main-content');
+        const displayName = document.getElementById('display-name');
+
+        nameInput.addEventListener('input', () => {
+            if (/^[A-Za-z\s]+$/.test(nameInput.value.trim())) {
+                startBtn.disabled = false;
+            } else {
+                startBtn.disabled = true;
+            }
+        });
+
+        startBtn.addEventListener('click', () => {
+            studentName = nameInput.value.trim();
+            displayName.innerText = `Student: ${studentName}`;
+            welcomeScreen.style.display = 'none';
+            mainContent.style.display = 'block';
+            renderQuiz();
+        });
+
+        // 4. بناء وعرض الأسئلة
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+            
+            // خلط ترتيب الأسئلة
+            const shuffledQuestions = shuffleArray([...questionsData]);
+
+            shuffledQuestions.forEach((q, qIndex) => {
+                const qCard = document.createElement('div');
+                qCard.className = 'question-card';
+                
+                // بناء عنوان السؤال مع أيقونة الترجمة
+                const qTitle = document.createElement('div');
+                qTitle.className = 'question-title';
+                
+                const translateSpan = document.createElement('span');
+                translateSpan.className = 'hover-translate-container';
+                translateSpan.innerHTML = `<span class="icon">🌐</span><span class="tooltip-text">${q.enTranslation}</span>`;
+                
+                const textSpan = document.createElement('span');
+                textSpan.innerText = `${qIndex + 1}- ${q.question}`;
+
+                qTitle.appendChild(translateSpan);
+                qTitle.appendChild(textSpan);
+                qCard.appendChild(qTitle);
+
+                // خلط ترتيب الإجابات
+                const shuffledOptions = shuffleArray([...q.options]);
+
+                shuffledOptions.forEach((opt, optIndex) => {
+                    const label = document.createElement('label');
+                    label.className = 'option-label';
+                    
+                    const input = document.createElement('input');
+                    input.type = 'radio';
+                    input.name = `question-${qIndex}`;
+                    input.value = opt.correct; 
+                    
+                    // تغيير تنسيق الإطار عند التحديد
+                    input.addEventListener('change', () => {
+                        const allLabels = qCard.querySelectorAll('.option-label');
+                        allLabels.forEach(l => l.classList.remove('selected'));
+                        label.classList.add('selected');
+                    });
+
+                    const span = document.createElement('span');
+                    span.innerText = opt.text;
+
+                    label.appendChild(input);
+                    label.appendChild(span);
+                    qCard.appendChild(label);
+                });
+
+                container.appendChild(qCard);
+            });
+        }
+
+        // 5. حساب النتيجة وتحميل PDF
+        document.getElementById('submit-btn').addEventListener('click', () => {
+            const allQuestions = document.querySelectorAll('.question-card');
+            let score = 0;
+            let answeredAll = true;
+
+            allQuestions.forEach(card => {
+                const selected = card.querySelector('input[type="radio"]:checked');
+                if (!selected) {
+                    answeredAll = false;
+                }
+            });
+
+            if (!answeredAll) {
+                alert("الرجاء الإجابة على جميع الأسئلة قبل الإرسال.\nPlease answer all questions.");
+                return;
+            }
+
+            // إخفاء زر الإرسال وتقييم الإجابات
+            document.getElementById('submit-btn').style.display = 'none';
+
+            allQuestions.forEach(card => {
+                const inputs = card.querySelectorAll('input[type="radio"]');
+                inputs.forEach(input => {
+                    input.disabled = true; // تعطيل التعديل
+                    const label = input.closest('label');
+                    
+                    if (input.value === "true") {
+                        label.classList.add('correct'); 
+                    } else if (input.checked && input.value === "false") {
+                        label.classList.add('wrong'); 
+                    }
+                });
+                
+                const selected = card.querySelector('input[type="radio"]:checked');
+                if (selected && selected.value === "true") {
+                    score++;
+                }
+            });
+
+            // عرض النتيجة (من 6 لأن عدد الأسئلة أصبح 6)
+            const resultBox = document.getElementById('result-box');
+            resultBox.innerText = `Score: You got ${score} out of 6`;
+            resultBox.style.display = 'block';
+
+            // تأخير بسيط للتأكد من تحديث الألوان قبل إنشاء الـ PDF
+            setTimeout(() => {
+                const captureArea = document.getElementById('capture-area');
+                
+                // تحويل الشاشة لـ PDF بدلاً من صورة فقط
+                html2canvas(captureArea, { backgroundColor: "#ffffff", scale: 2 }).then(canvas => {
+                    const imgData = canvas.toDataURL("image/png");
+                    
+                    // إعدادات مكتبة jsPDF لورقة A4 عمودية
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    
+                    const pdfWidth = 210; // عرض ورقة A4 بالمليمتر
+                    const pageHeight = 297; // طول ورقة A4 بالمليمتر
+                    const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+                    let heightLeft = imgHeight;
+                    let position = 0;
+
+                    // إضافة الصفحة الأولى
+                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+                    heightLeft -= pageHeight;
+
+                    // إضافة صفحات إضافية تلقائياً إذا كان المحتوى أطول من ورقة واحدة
+                    while (heightLeft >= 0) {
+                        position = heightLeft - imgHeight;
+                        pdf.addPage();
+                        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+                        heightLeft -= pageHeight;
+                    }
+                    
+                    // تحميل ملف الـ PDF
+                    pdf.save(`${studentName.replace(/\s+/g, '_')}_Result.pdf`);
+                });
+            }, 1000);
+        });
+    </script>
 </body>
 </html>
